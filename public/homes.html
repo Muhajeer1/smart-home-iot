@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Homes</h1>
+
+      <div class="card">
+        <h2>Add Home</h2>
+        <form id="homeForm">
+          <input name="home_name" placeholder="Home Name" required />
+          <input name="address_text" placeholder="Address" required />
+          <button type="submit">Add Home</button>
+        </form>
+
+        <p id="homeMessage" class="message"></p>
+      </div>
+
+      <div class="card">
+        <h2>My Homes</h2>
+        <ul id="homeList"></ul>
+      </div>
+
+      <div class="nav-links">
+        <a href="/dashboard.html">Back to Menu</a>
+      </div>
+    </div>
+
+    <script src="/js/format.js"></script>
+    <script src="/js/homes.js"></script>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Technician Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Technician Dashboard</h1>
+      <p id="techUser" class="meta"></p>
+
+      <div class="card">
+        <h2>All Devices</h2>
+        <ul id="deviceList"></ul>
+      </div>
+
+      <div class="card">
+        <h2>IoT Reading Simulator</h2>
+        <p class="meta">
+          Generate sensor readings for the demo database when real devices are not connected.
+        </p>
+        <div class="form-actions">
+          <input
+            id="techBulkReadingCount"
+            type="number"
+            min="1"
+            max="50000"
+            value="5000"
+          />
+          <button id="techBulkGenerateBtn" type="button">Generate Dataset</button>
+        </div>
+        <ul id="techSimulatorList"></ul>
+        <p id="techSimulatorMessage" class="message"></p>
+      </div>
+
+      <div class="nav-links">
+        <a href="/events.html">Events</a>
+        <a href="/alerts.html">Alerts</a>
+        <a href="/">Logout</a>
+      </div>
+    </div>
+
+    <script src="/js/format.js"></script>
+    <script src="/js/simulator.js"></script>
+    <script src="/js/technician.js"></script>
+  </body>
+</html>

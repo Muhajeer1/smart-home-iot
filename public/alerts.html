@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Alerts</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Alerts</h1>
+      <p id="alertsUser" class="meta"></p>
+
+      <div class="card">
+        <h2>Alert Filter</h2>
+        <select id="alertFilter">
+          <option value="active">Active alerts</option>
+          <option value="resolved">Resolved alerts</option>
+          <option value="all">All alerts</option>
+        </select>
+        <p id="alertMessage" class="message"></p>
+      </div>
+
+      <div class="card">
+        <h2>Alerts</h2>
+        <ul id="alertList"></ul>
+      </div>
+
+      <div id="alertsBackLinks" class="nav-links">
+        <a href="/dashboard.html" id="alertsBackLink">Back to Menu</a>
+      </div>
+    </div>
+
+    <script src="/js/format.js"></script>
+    <script src="/js/alerts.js"></script>
+  </body>
+</html>

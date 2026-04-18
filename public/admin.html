@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Admin Dashboard</h1>
+      <p id="adminUser" class="meta"></p>
+
+      <div class="card">
+        <h2>All Users</h2>
+        <ul id="userList"></ul>
+      </div>
+
+      <div class="card">
+        <h2>All Homes</h2>
+        <ul id="homeList"></ul>
+      </div>
+
+      <div class="card">
+        <h2>All Devices</h2>
+        <ul id="deviceList"></ul>
+      </div>
+
+      <div class="card">
+        <h2>IoT Reading Simulator</h2>
+        <p class="meta">
+          Generate sensor readings for the demo database when real devices are not connected.
+        </p>
+        <div class="form-actions">
+          <input
+            id="adminBulkReadingCount"
+            type="number"
+            min="1"
+            max="50000"
+            value="5000"
+          />
+          <button id="adminBulkGenerateBtn" type="button">Generate Dataset</button>
+        </div>
+        <ul id="adminSimulatorList"></ul>
+        <p id="adminSimulatorMessage" class="message"></p>
+      </div>
+
+      <div class="nav-links">
+        <a href="/events.html">Events</a>
+        <a href="/alerts.html">Alerts</a>
+        <a href="/" id="logoutLink">Logout</a>
+      </div>
+    </div>
+
+    <script src="/js/format.js"></script>
+    <script src="/js/simulator.js"></script>
+    <script src="/js/admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sensors</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Sensors</h1>
+      <p id="selectedDevice" class="meta"></p>
+
+      <div class="card">
+        <h2>Default Sensors</h2>
+        <p class="meta">
+          Sensors are created automatically from the selected device type.
+        </p>
+        <button id="createDefaultSensorsBtn" type="button" hidden>
+          Create Default Sensors
+        </button>
+        <p id="sensorMessage" class="message"></p>
+      </div>
+
+      <div class="card">
+        <h2>Search</h2>
+        <input id="sensorFilter" placeholder="Search sensor by type" />
+      </div>
+
+      <div class="card">
+        <h2>Sensors in this Device</h2>
+        <ul id="sensorList"></ul>
+      </div>
+
+      <div class="nav-links">
+        <a href="/devices.html">Back to Devices</a>
+      </div>
+    </div>
+
+    <script src="/js/format.js"></script>
+    <script src="/js/sensors.js"></script>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rooms</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Rooms</h1>
+      <p id="selectedHome" class="meta"></p>
+
+      <div class="card">
+        <h2>Add Room</h2>
+        <form id="roomForm">
+          <input name="room_name" placeholder="Room Name" required />
+          <input type="number" name="floor_no" placeholder="Floor Number" required />
+          <button type="submit">Add Room</button>
+        </form>
+        <p id="roomMessage" class="message"></p>
+      </div>
+
+      <div class="card">
+        <h2>Search</h2>
+        <input id="roomFilter" placeholder="Search room by name" />
+      </div>
+
+      <div class="card">
+        <h2>Rooms in this Home</h2>
+        <ul id="roomList"></ul>
+      </div>
+
+      <div class="nav-links">
+        <a href="/homes.html">Back to Homes</a>
+      </div>
+    </div>
+
+    <script src="/js/format.js"></script>
+    <script src="/js/rooms.js"></script>
+  </body>
+</html>

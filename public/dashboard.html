@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Smart Home IoT Dashboard</h1>
+
+      <p id="welcomeText" class="meta"></p>
+      <p id="roleText" class="meta"></p>
+
+      <div class="card">
+        <h2>Main Menu</h2>
+        <div class="nav-links">
+          <a href="/homes.html">My Homes</a>
+          <a href="/analytics.html">Analytics</a>
+          <a href="/events.html">Events</a>
+          <a href="/alerts.html">Alerts</a>
+          <a href="/" id="logoutLink">Logout</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Quick Summary</h2>
+        <ul>
+          <li>Total Homes: <span id="homeCount">0</span></li>
+          <li>Total Rooms: <span id="roomCount">0</span></li>
+          <li>Total Devices: <span id="deviceCount">0</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+  </body>
+</html>

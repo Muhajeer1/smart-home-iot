@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Devices</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Devices</h1>
+      <p id="selectedRoom" class="meta"></p>
+
+      <div class="card">
+        <h2>Add Device</h2>
+        <form id="deviceForm">
+          <select name="device_type" required>
+            <option value="">Select device type</option>
+            <option value="thermostat">Thermostat</option>
+            <option value="camera">Camera</option>
+            <option value="smart_lock">Smart Lock</option>
+            <option value="smoke_detector">Smoke Detector</option>
+            <option value="light">Smart Light</option>
+            <option value="smart_plug">Smart Plug</option>
+            <option value="motion_detector">Motion Detector</option>
+          </select>
+
+          <input name="brand_model" placeholder="Brand / Model" required />
+          <input name="serial_no" placeholder="Serial Number" required />
+
+          <select name="status" required>
+            <option value="">Select status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="offline">Offline</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+
+          <button type="submit">Add Device</button>
+        </form>
+        <p id="deviceMessage" class="message"></p>
+      </div>
+
+      <div class="card">
+        <h2>Search</h2>
+        <input id="deviceFilter" placeholder="Search device by type" />
+      </div>
+
+      <div class="card">
+        <h2>Devices in this Room</h2>
+        <ul id="deviceList"></ul>
+      </div>
+
+      <div class="nav-links">
+        <a href="/rooms.html">Back to Rooms</a>
+      </div>
+    </div>
+
+    <script src="/js/format.js"></script>
+    <script src="/js/devices.js"></script>
+  </body>
+</html>
