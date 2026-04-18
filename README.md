@@ -21,6 +21,35 @@ Real IoT hardware is not connected in this demo. Sensor readings are generated b
 - npm
 - PostgreSQL
 
+This project is built for PostgreSQL. Other database systems such as MySQL, SQLite, or MongoDB will not work without changing the backend database driver and SQL queries.
+
+## Install PostgreSQL On Windows
+
+Download PostgreSQL for Windows from the official PostgreSQL website:
+
+```text
+https://www.postgresql.org/download/windows/
+```
+
+Use the interactive Windows installer. During installation:
+
+- Keep the default port: `5432`
+- Set a password for the `postgres` user
+- Remember this password because it must be added to `.env`
+- pgAdmin can be installed too, but it is optional
+
+After installation, open Command Prompt or PowerShell and check that PostgreSQL works:
+
+```bash
+psql --version
+```
+
+If `psql` is not recognized, use pgAdmin to create the database, or add PostgreSQL's `bin` folder to the Windows PATH. The folder usually looks like this:
+
+```text
+C:\Program Files\PostgreSQL\<version>\bin
+```
+
 ## Setup
 
 Clone the repository:
