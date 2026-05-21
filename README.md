@@ -1,27 +1,79 @@
 # Smart Home IoT Database Management System
 
-A full-stack smart home IoT management system built with Node.js, Express, PostgreSQL, and vanilla JavaScript.
+Live Demo: https://smart-home-iot-liard.vercel.app/
 
-The application includes role-based dashboards, CRUD operations, smart home hierarchy management, sensor reading simulation, alerts, event history, and analytics reports powered by SQL joins and aggregations.
+A full-stack smart home IoT management system built with Node.js, Express, PostgreSQL, and vanilla JavaScript. The project demonstrates how a relational database can power a real application with role-based access, CRUD workflows, device telemetry, alerts, event history, and analytics reports.
 
-## Features
+## Overview
 
-- Login and registration flow with user roles
-- User dashboard for homes, rooms, devices, sensors, and readings
-- Admin dashboard for system-level management
-- Technician dashboard for device status changes and reading simulation
-- Automatic default sensor creation by device type
+This application models a smart home IoT environment where users can manage homes, rooms, devices, sensors, and sensor readings. Technicians can inspect devices, change device states, and simulate sensor readings. Admins can manage system-level data and review global analytics.
+
+The database is the core of the project. Homes, rooms, devices, sensors, readings, events, alerts, users, and roles are connected through foreign keys. The application uses those relationships to provide meaningful workflows and reports instead of storing isolated records.
+
+## Key Features
+
+- Role-based login flow for user, technician, and admin views
+- CRUD operations for homes, rooms, devices, sensors, and readings
+- Smart home hierarchy: Home -> Room -> Device -> Sensor -> SensorReading
+- Automatic default sensor creation based on selected device type
+- Sensor reading simulation for testing IoT behavior without physical hardware
 - Alerts for abnormal readings, offline devices, and maintenance state
+- Resolve/reopen flow for active and resolved alerts
 - Event history for important system actions
-- Analytics reports using joins, grouping, aggregation, date filtering, and nested queries
+- Analytics reports built with SQL joins, grouping, aggregation, nested queries, and date filtering
+- Clean URL routing for a more realistic web app experience
+- Deployment-ready database configuration for local PostgreSQL or cloud PostgreSQL
 
 ## Tech Stack
 
 - Backend: Node.js, Express
 - Database: PostgreSQL
 - Frontend: HTML, CSS, vanilla JavaScript
-- Auth/passwords: bcrypt
-- Deployment-ready database config: local `.env` or cloud `DATABASE_URL`
+- Password hashing: bcrypt
+- Hosting: Vercel
+- Cloud database: Neon PostgreSQL
+
+## Database Concepts Demonstrated
+
+- Primary keys and foreign keys
+- One-to-many relationships
+- `ON DELETE CASCADE`, `ON DELETE SET NULL`, and `ON DELETE RESTRICT`
+- Parameterized SQL queries
+- Input validation before database writes
+- CRUD operations
+- Joins across multiple related tables
+- `GROUP BY`, `COUNT`, `AVG`, `MIN`, `MAX`
+- Date filtering for recent alerts
+- Nested query for latest reading per sensor
+
+## Analytics Reports
+
+The analytics page demonstrates advanced SQL queries on top of the stored IoT data:
+
+- Devices per home
+- Latest reading per sensor with home, room, and device context
+- Abnormal reading summary by sensor
+- Alert summary by type for the last 30 days
+- Average reading value by sensor type
+- Number of rooms per home
+
+## Demo Access
+
+The deployed version uses a demo PostgreSQL database. Demo accounts use:
+
+```txt
+Password: 123456
+```
+
+Recommended demo accounts:
+
+```txt
+User: user@example.com
+Technician: technician@example.com
+Admin: admin@example.com
+```
+
+If a demo account is unavailable, a new regular user can be created from the registration form. Admin and technician roles are intended to be assigned directly in the database.
 
 ## Local Setup
 
@@ -35,7 +87,7 @@ npm install
 
 3. Copy `.env.example` to `.env` and fill in your local database values:
 
-```bash
+```txt
 DB_HOST=localhost
 DB_USER=postgres
 DB_PASSWORD=your_postgres_password
@@ -43,7 +95,7 @@ DB_NAME=smart_home_iot
 DB_PORT=5432
 ```
 
-4. Import the database schema and demo data if SQL files are included with the project package:
+4. Import the database schema and optional demo data:
 
 ```bash
 psql -U postgres -d smart_home_iot -f database.sql
@@ -56,32 +108,43 @@ psql -U postgres -d smart_home_iot -f final_dump.sql
 npm start
 ```
 
-6. Open:
+6. Open the app:
 
 ```txt
 http://localhost:3000
 ```
 
-## Cloud Deployment
+For development with automatic restarts:
 
-For services like Render + Neon, set this environment variable in the hosting dashboard:
+```bash
+npm run dev
+```
+
+## Cloud Deployment Notes
+
+The app supports both local PostgreSQL variables and a cloud database connection string.
+
+For cloud deployment, set this environment variable in the hosting platform:
 
 ```txt
 DATABASE_URL=postgresql://username:password@host/database?sslmode=require
 ```
 
-The app will automatically use `DATABASE_URL` when it exists. For local development, it will use the separate `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, and `DB_PORT` values.
+When `DATABASE_URL` exists, the app uses it automatically. Otherwise it falls back to the local `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, and `DB_PORT` values.
 
-## Demo Accounts
-
-Use the demo users from the imported database dump. If the dump was generated for the final presentation, the password is:
+## Project Structure
 
 ```txt
-123456
+controllers/   Request handlers and database operations
+routes/        Express route definitions
+services/      Reusable event and alert logic
+utils/         Validation and database error helpers
+public/        HTML, CSS, and frontend JavaScript
+api/           Vercel serverless entry point
+db.js          PostgreSQL connection pool
+server.js      Express app setup and routes
 ```
 
-Recommended demo roles:
+## Notes
 
-- User: view and manage own smart home data
-- Technician: inspect devices, change device states, simulate sensor readings
-- Admin: manage users, homes, devices, analytics, alerts, and events
+This project was originally developed as a database management systems course project and later improved for portfolio presentation. It focuses on demonstrating relational database design, backend integration, and practical full-stack workflows.
