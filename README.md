@@ -68,9 +68,10 @@ Password: 123456
 Recommended demo accounts:
 
 ```txt
-User: user@example.com
-Technician: technician@example.com
-Admin: admin@example.com
+Admin: admin@smarthome.local
+User: aylin@smarthome.local
+User: mert@smarthome.local
+Technician: technician@smarthome.local
 ```
 
 If a demo account is unavailable, a new regular user can be created from the registration form. Admin and technician roles are intended to be assigned directly in the database.
