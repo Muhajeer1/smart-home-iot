@@ -3,6 +3,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const roleId = localStorage.getItem("role_id");
   const userId = localStorage.getItem("user_id");
 
+  if (roleId === "1") {
+    window.location.replace("/admin");
+    return;
+  }
+
+  if (roleId === "3") {
+    window.location.replace("/technician");
+    return;
+  }
+
   document.getElementById("welcomeText").textContent = `Welcome, ${fullName}`;
 
   let roleName = "User";
@@ -11,17 +21,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("roleText").textContent = `Role: ${roleName}`;
 
-  if (roleId === "3") {
-    const menu = document.querySelector("ul");
-    const techItem = document.createElement("li");
-    techItem.innerHTML = `<a href="/technician.html">Technician Panel</a>`;
-    menu.appendChild(techItem);
-  }
-
   try {
-    const homesResponse = await fetch(`/homes/${userId}`);
-    const homes = await homesResponse.json();
-    document.getElementById("homeCount").textContent = homes.length;
+    const summaryResponse = await fetch(`/analytics/dashboard-summary/${userId}`);
+    const summary = await summaryResponse.json();
+
+    if (summaryResponse.ok) {
+      document.getElementById("homeCount").textContent = summary.home_count || 0;
+      document.getElementById("roomCount").textContent = summary.room_count || 0;
+      document.getElementById("deviceCount").textContent = summary.device_count || 0;
+    }
   } catch (err) {
     console.error(err);
   }

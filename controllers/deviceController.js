@@ -1,6 +1,6 @@
 const db = require("../db");
 const { createEvent } = require("../services/eventService");
-const { createAlert } = require("../services/alertService");
+const { createDeviceAlert } = require("../services/alertService");
 const {
   normalizeText,
   normalizeKey,
@@ -85,17 +85,69 @@ async function createDefaultSensors(client, device) {
   return createdCount;
 }
 
+async function canAccessRoom(roomId, userId, roleId) {
+  if (roleId === "1" || roleId === "3") {
+    return true;
+  }
+
+  const result = await db.query(
+    `
+    SELECT 1
+    FROM Room r
+    JOIN Home h ON r.home_id = h.home_id
+    WHERE r.room_id = $1
+      AND h.owner_user_id = $2
+    `,
+    [roomId, userId || null],
+  );
+
+  return result.rows.length > 0;
+}
+
+async function canAccessDevice(deviceId, userId, roleId) {
+  if (roleId === "1" || roleId === "3") {
+    return true;
+  }
+
+  const result = await db.query(
+    `
+    SELECT 1
+    FROM Device d
+    JOIN Room r ON d.room_id = r.room_id
+    JOIN Home h ON r.home_id = h.home_id
+    WHERE d.device_id = $1
+      AND h.owner_user_id = $2
+    `,
+    [deviceId, userId || null],
+  );
+
+  return result.rows.length > 0;
+}
+
 exports.getDevicesByRoom = async (req, res) => {
   try {
     const roomId = req.params.roomId;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
+    const params = [roomId];
+    const ownerSql =
+      roleId === "1" || roleId === "3" ? "" : "AND h.owner_user_id = $2";
+
+    if (ownerSql) {
+      params.push(userId || null);
+    }
 
     const result = await db.query(
       `
-      SELECT * FROM Device
-      WHERE room_id = $1
-      ORDER BY device_id DESC
+      SELECT d.*
+      FROM Device d
+      JOIN Room r ON d.room_id = r.room_id
+      JOIN Home h ON r.home_id = h.home_id
+      WHERE d.room_id = $1
+      ${ownerSql}
+      ORDER BY d.device_id DESC
       `,
-      [roomId],
+      params,
     );
 
     res.json(result.rows);
@@ -110,6 +162,12 @@ exports.createDefaultSensorsForDevice = async (req, res) => {
 
   try {
     const deviceId = req.params.id;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
+
+    if (!(await canAccessDevice(deviceId, userId, roleId))) {
+      return res.status(403).json({ error: "You can only manage your own devices." });
+    }
 
     await client.query("BEGIN");
 
@@ -153,6 +211,8 @@ exports.createDevice = async (req, res) => {
 
   try {
     const room_id = req.body.room_id;
+    const userId = req.body.userId;
+    const roleId = String(req.body.roleId || "");
     const device_type = normalizeKey(req.body.device_type);
     const brand_model = normalizeText(req.body.brand_model);
     const serial_no = normalizeText(req.body.serial_no);
@@ -175,6 +235,10 @@ exports.createDevice = async (req, res) => {
       !validateEnum(res, status, DEVICE_STATUSES, "status")
     ) {
       return;
+    }
+
+    if (!(await canAccessRoom(room_id, userId, roleId))) {
+      return res.status(403).json({ error: "You can only add devices to your own rooms." });
     }
 
     await client.query("BEGIN");
@@ -233,6 +297,8 @@ exports.createDevice = async (req, res) => {
 exports.updateDevice = async (req, res) => {
   try {
     const deviceId = req.params.id;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
     const device_type = normalizeKey(req.body.device_type);
     const brand_model = normalizeText(req.body.brand_model);
     const status = normalizeKey(req.body.status);
@@ -252,6 +318,14 @@ exports.updateDevice = async (req, res) => {
       !validateEnum(res, status, DEVICE_STATUSES, "status")
     ) {
       return;
+    }
+
+    if (roleId !== "1" && roleId !== "3") {
+      return res.status(403).json({ error: "Only admin or technician can change device state." });
+    }
+
+    if (!(await canAccessDevice(deviceId, userId, roleId))) {
+      return res.status(403).json({ error: "You can only manage your own devices." });
     }
 
     const existingDevice = await db.query(
@@ -307,11 +381,16 @@ exports.updateDevice = async (req, res) => {
     );
 
     if (device.status === "offline") {
-      await createAlert(home_id, null, "device_offline", "high");
+      await createDeviceAlert(home_id, device.device_id, "device_offline", "high");
     }
 
     if (device.status === "maintenance") {
-      await createAlert(home_id, null, "maintenance_required", "medium");
+      await createDeviceAlert(
+        home_id,
+        device.device_id,
+        "maintenance_required",
+        "medium",
+      );
     }
 
     res.json({
@@ -326,6 +405,12 @@ exports.updateDevice = async (req, res) => {
 exports.deleteDevice = async (req, res) => {
   try {
     const deviceId = req.params.id;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
+
+    if (!(await canAccessDevice(deviceId, userId, roleId))) {
+      return res.status(403).json({ error: "You can only delete your own devices." });
+    }
 
     const result = await db.query(
       `

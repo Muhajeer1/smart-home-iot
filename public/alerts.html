@@ -2,35 +2,86 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alerts</title>
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body>
     <div class="page">
-      <h1>Alerts</h1>
-      <p id="alertsUser" class="meta"></p>
+      <header class="app-topbar">
+        <div class="brand"><span class="brand-mark">IoT</span> Smart Home</div>
+        <nav class="topnav">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/analytics">Analytics</a>
+          <a href="/activity">Events</a>
+        </nav>
+      </header>
 
-      <div class="card">
-        <h2>Alert Filter</h2>
-        <select id="alertFilter">
-          <option value="active">Active alerts</option>
-          <option value="resolved">Resolved alerts</option>
-          <option value="all">All alerts</option>
-        </select>
+      <section class="page-hero">
+        <div>
+          <p class="page-kicker">Operations</p>
+          <h1>Alert Center</h1>
+          <p id="alertsUser" class="meta"></p>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Focus</span>
+            <span class="hero-panel-value">Incidents</span>
+          </div>
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Actions</span>
+            <span class="hero-panel-value">Resolve / Reopen</span>
+          </div>
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Context</span>
+            <span class="hero-panel-value">Home / Device</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="incident-summary">
+        <div class="summary-box">
+          <span class="summary-label">Active Alerts</span>
+          <strong id="activeAlertCount">0</strong>
+          <p class="summary-note">Open issues that still need attention.</p>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">Resolved</span>
+          <strong id="resolvedAlertCount">0</strong>
+          <p class="summary-note">Alerts already handled by the team.</p>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">High Severity</span>
+          <strong id="highAlertCount">0</strong>
+          <p class="summary-note">Critical conditions across homes.</p>
+        </div>
+      </section>
+
+      <section class="card incident-center">
+        <div class="report-header">
+          <div>
+            <h2>Incidents</h2>
+            <p class="report-copy">Review abnormal readings, offline devices and maintenance states.</p>
+          </div>
+          <div class="filter-tabs">
+            <button type="button" class="filter-tab is-active" data-alert-status="active">Active</button>
+            <button type="button" class="filter-tab" data-alert-status="resolved">Resolved</button>
+            <button type="button" class="filter-tab" data-alert-status="all">All</button>
+          </div>
+          <select id="alertFilter" hidden>
+            <option value="active">Active alerts</option>
+            <option value="resolved">Resolved alerts</option>
+            <option value="all">All alerts</option>
+          </select>
+        </div>
+
         <p id="alertMessage" class="message"></p>
-      </div>
-
-      <div class="card">
-        <h2>Alerts</h2>
-        <ul id="alertList"></ul>
-      </div>
-
-      <div id="alertsBackLinks" class="nav-links">
-        <a href="/dashboard.html" id="alertsBackLink">Back to Menu</a>
-      </div>
+        <ul id="alertList" class="incident-list"></ul>
+      </section>
     </div>
 
     <script src="/js/format.js"></script>
+    <script src="/js/ui.js"></script>
     <script src="/js/alerts.js"></script>
   </body>
 </html>

@@ -27,12 +27,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadSensors() {
   const device_id = localStorage.getItem("device_id");
+  const userId = localStorage.getItem("user_id") || "";
+  const roleId = localStorage.getItem("role_id") || "";
   const sensorFilter = document.getElementById("sensorFilter");
   const sensorMessage = document.getElementById("sensorMessage");
   const createDefaultSensorsBtn = document.getElementById("createDefaultSensorsBtn");
 
   try {
-    const response = await fetch(`/sensors/${device_id}`);
+    const response = await fetch(
+      `/sensors/${device_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+    );
     allSensors = await response.json();
     renderSensors(allSensors, sensorFilter.value);
 
@@ -61,9 +65,14 @@ async function createDefaultSensors() {
     createDefaultSensorsBtn.disabled = true;
     setMessage(sensorMessage, "Creating default sensors...", "warning");
 
-    const response = await fetch(`/devices/${device_id}/default-sensors`, {
-      method: "POST",
-    });
+    const userId = localStorage.getItem("user_id") || "";
+    const roleId = localStorage.getItem("role_id") || "";
+    const response = await fetch(
+      `/devices/${device_id}/default-sensors?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+      {
+        method: "POST",
+      },
+    );
     const result = await response.json();
 
     if (response.ok) {
@@ -118,7 +127,7 @@ function renderSensors(sensors, filterText = "") {
     openBtn.addEventListener("click", () => {
       localStorage.setItem("sensor_id", sensor.sensor_id);
       localStorage.setItem("sensor_type", sensor.sensor_type);
-      window.location.href = "/readings.html";
+      window.location.href = "/readings";
     });
 
     actions.appendChild(openBtn);

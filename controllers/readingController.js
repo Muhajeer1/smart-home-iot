@@ -22,6 +22,11 @@ const DEFAULT_SENSOR_RANGES = {
   open_close: { min: 0, max: 1 },
 };
 
+function canSimulate(req) {
+  const roleId = String(req.body.roleId || req.query.roleId || "");
+  return roleId === "1" || roleId === "3";
+}
+
 function getRangeForSensor(sensor) {
   const fallback = DEFAULT_SENSOR_RANGES[sensor.sensor_type] || { min: 0, max: 100 };
   const min = sensor.normal_min !== null ? Number(sensor.normal_min) : fallback.min;
@@ -207,14 +212,29 @@ async function createBulkAlerts(client, abnormalSensors) {
 exports.getReadingsBySensor = async (req, res) => {
   try {
     const sensorId = req.params.sensorId;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
+    const params = [sensorId];
+    const ownerSql =
+      roleId === "1" || roleId === "3" ? "" : "AND h.owner_user_id = $2";
+
+    if (ownerSql) {
+      params.push(userId || null);
+    }
 
     const result = await db.query(
       `
-      SELECT * FROM SensorReading
-      WHERE sensor_id = $1
-      ORDER BY reading_time DESC
+      SELECT sr.*
+      FROM SensorReading sr
+      JOIN Sensor s ON sr.sensor_id = s.sensor_id
+      JOIN Device d ON s.device_id = d.device_id
+      JOIN Room r ON d.room_id = r.room_id
+      JOIN Home h ON r.home_id = h.home_id
+      WHERE sr.sensor_id = $1
+      ${ownerSql}
+      ORDER BY sr.reading_time DESC
       `,
-      [sensorId],
+      params,
     );
 
     res.json(result.rows);
@@ -272,6 +292,10 @@ exports.createReading = async (req, res) => {
 
 exports.simulateReading = async (req, res) => {
   try {
+    if (!canSimulate(req)) {
+      return res.status(403).json({ error: "Only admin or technician can generate readings." });
+    }
+
     const sensor_id = req.body.sensor_id;
 
     if (
@@ -310,6 +334,10 @@ exports.simulateBulkReadings = async (req, res) => {
   const client = await db.connect();
 
   try {
+    if (!canSimulate(req)) {
+      return res.status(403).json({ error: "Only admin or technician can generate readings." });
+    }
+
     const requestedCount = req.body.count || 5000;
 
     if (!validateNumber(res, requestedCount, "Reading count")) {

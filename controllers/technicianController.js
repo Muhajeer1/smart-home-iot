@@ -1,14 +1,36 @@
 const db = require("../db");
+const { createDeviceAlert } = require("../services/alertService");
+const { createEvent } = require("../services/eventService");
 const { normalizeKey, sendDbError, validateEnum } = require("../utils/http");
 
 const DEVICE_STATUSES = ["active", "inactive", "offline", "maintenance"];
 
+function hasTechnicianAccess(req) {
+  const roleId = String(req.query.roleId || req.body.roleId || "");
+  return roleId === "1" || roleId === "3";
+}
+
 exports.getAllDevices = async (req, res) => {
   try {
+    if (!hasTechnicianAccess(req)) {
+      return res.status(403).json({ error: "Access denied." });
+    }
+
     const result = await db.query(
       `
-      SELECT * FROM Device
-      ORDER BY device_id DESC
+      SELECT d.device_id,
+             d.room_id,
+             d.device_type,
+             d.brand_model,
+             d.serial_no,
+             d.installed_at,
+             d.status,
+             r.room_name,
+             h.home_name
+      FROM Device d
+      JOIN Room r ON d.room_id = r.room_id
+      JOIN Home h ON r.home_id = h.home_id
+      ORDER BY h.home_name ASC, r.room_name ASC, d.device_id DESC
       `,
     );
 
@@ -21,6 +43,10 @@ exports.getAllDevices = async (req, res) => {
 
 exports.getAllSensors = async (req, res) => {
   try {
+    if (!hasTechnicianAccess(req)) {
+      return res.status(403).json({ error: "Access denied." });
+    }
+
     const result = await db.query(
       `
       SELECT s.sensor_id, s.sensor_type, s.unit, s.normal_min, s.normal_max,
@@ -44,6 +70,10 @@ exports.getAllSensors = async (req, res) => {
 
 exports.updateDeviceStatus = async (req, res) => {
   try {
+    if (!hasTechnicianAccess(req)) {
+      return res.status(403).json({ error: "Access denied." });
+    }
+
     const deviceId = req.params.id;
     const status = normalizeKey(req.body.status);
 
@@ -65,9 +95,41 @@ exports.updateDeviceStatus = async (req, res) => {
       return res.status(404).json({ error: "Device not found" });
     }
 
+    const device = result.rows[0];
+    const homeResult = await db.query(
+      `
+      SELECT r.home_id
+      FROM Room r
+      JOIN Device d ON r.room_id = d.room_id
+      WHERE d.device_id = $1
+      `,
+      [device.device_id],
+    );
+    const home_id = homeResult.rows[0]?.home_id || null;
+
+    await createEvent(
+      home_id,
+      device.device_id,
+      "device_status_changed",
+      `Device "${device.device_type}" status changed to "${device.status}"`,
+    );
+
+    if (device.status === "offline") {
+      await createDeviceAlert(home_id, device.device_id, "device_offline", "high");
+    }
+
+    if (device.status === "maintenance") {
+      await createDeviceAlert(
+        home_id,
+        device.device_id,
+        "maintenance_required",
+        "medium",
+      );
+    }
+
     res.json({
       message: "Device status updated successfully",
-      device: result.rows[0],
+      device,
     });
   } catch (err) {
     console.error("TECH UPDATE DEVICE ERROR:", err.message);

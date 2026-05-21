@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ sensor_id }),
+        body: JSON.stringify({ sensor_id, roleId }),
       });
 
       const result = await response.json();
@@ -77,10 +77,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadReadings() {
   const sensor_id = localStorage.getItem("sensor_id");
+  const userId = localStorage.getItem("user_id") || "";
+  const roleId = localStorage.getItem("role_id") || "";
   const readingFilter = document.getElementById("readingFilter");
 
   try {
-    const response = await fetch(`/readings/${sensor_id}`);
+    const response = await fetch(
+      `/readings/${sensor_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+    );
     allReadings = await response.json();
     renderReadings(allReadings, readingFilter.value);
   } catch (err) {

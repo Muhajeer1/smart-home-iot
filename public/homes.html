@@ -3,35 +3,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Homes</title>
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body>
     <div class="page">
-      <h1>Homes</h1>
+      <header class="app-topbar">
+        <div class="brand"><span class="brand-mark">IoT</span> Smart Home</div>
+        <nav class="topnav">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/analytics">Analytics</a>
+          <a href="/activity">Events</a>
+          <a href="/alert-center">Alerts</a>
+        </nav>
+      </header>
 
-      <div class="card">
-        <h2>Add Home</h2>
-        <form id="homeForm">
-          <input name="home_name" placeholder="Home Name" required />
-          <input name="address_text" placeholder="Address" required />
-          <button type="submit">Add Home</button>
-        </form>
+      <section class="page-hero">
+        <div>
+          <p class="page-kicker">Home Management</p>
+          <h1>Homes</h1>
+          <p class="meta">Create homes and open their rooms, devices, sensors and readings.</p>
+        </div>
+      </section>
 
-        <p id="homeMessage" class="message"></p>
-      </div>
+      <div class="layout-grid">
+        <div class="card">
+          <h2>Add Home</h2>
+          <form id="homeForm">
+            <input name="home_name" placeholder="Home Name" required />
+            <input name="address_text" placeholder="Address" required />
+            <button type="submit">Add Home</button>
+          </form>
 
-      <div class="card">
-        <h2>My Homes</h2>
-        <ul id="homeList"></ul>
-      </div>
+          <p id="homeMessage" class="message"></p>
+        </div>
 
-      <div class="nav-links">
-        <a href="/dashboard.html">Back to Menu</a>
+        <div class="card">
+          <h2>My Homes</h2>
+          <ul id="homeList"></ul>
+        </div>
       </div>
     </div>
 
     <script src="/js/format.js"></script>
+    <script src="/js/ui.js"></script>
     <script src="/js/homes.js"></script>
   </body>
 </html>

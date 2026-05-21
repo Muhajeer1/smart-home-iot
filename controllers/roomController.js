@@ -10,14 +10,26 @@ const {
 exports.getRoomsByHome = async (req, res) => {
   try {
     const homeId = req.params.homeId;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
+    const params = [homeId];
+    const ownerSql =
+      roleId === "1" || roleId === "3" ? "" : "AND h.owner_user_id = $2";
+
+    if (ownerSql) {
+      params.push(userId || null);
+    }
 
     const result = await db.query(
       `
-      SELECT * FROM Room
-      WHERE home_id = $1
-      ORDER BY room_id DESC
+      SELECT r.*
+      FROM Room r
+      JOIN Home h ON r.home_id = h.home_id
+      WHERE r.home_id = $1
+      ${ownerSql}
+      ORDER BY r.room_id DESC
       `,
-      [homeId],
+      params,
     );
 
     res.json(result.rows);
@@ -30,6 +42,8 @@ exports.getRoomsByHome = async (req, res) => {
 exports.createRoom = async (req, res) => {
   try {
     const home_id = req.body.home_id;
+    const userId = req.body.userId;
+    const roleId = String(req.body.roleId || "");
     const room_name = normalizeText(req.body.room_name);
     const floor_no = req.body.floor_no;
 
@@ -45,6 +59,22 @@ exports.createRoom = async (req, res) => {
 
     if (!validateNumber(res, floor_no, "Floor number")) {
       return;
+    }
+
+    if (roleId !== "1" && roleId !== "3") {
+      const ownerResult = await db.query(
+        `
+        SELECT 1
+        FROM Home
+        WHERE home_id = $1
+          AND owner_user_id = $2
+        `,
+        [home_id, userId || null],
+      );
+
+      if (ownerResult.rows.length === 0) {
+        return res.status(403).json({ error: "You can only add rooms to your own homes." });
+      }
     }
 
     const result = await db.query(
@@ -78,6 +108,8 @@ exports.createRoom = async (req, res) => {
 exports.updateRoom = async (req, res) => {
   try {
     const roomId = req.params.id;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
     const room_name = normalizeText(req.body.room_name);
     const floor_no = req.body.floor_no;
 
@@ -96,12 +128,21 @@ exports.updateRoom = async (req, res) => {
 
     const result = await db.query(
       `
-      UPDATE Room
+      UPDATE Room r
       SET room_name = $1, floor_no = $2
-      WHERE room_id = $3
-      RETURNING *
+      FROM Home h
+      WHERE r.home_id = h.home_id
+        AND r.room_id = $3
+        ${
+          roleId === "1" || roleId === "3"
+            ? ""
+            : "AND h.owner_user_id = $4"
+        }
+      RETURNING r.*
       `,
-      [room_name, floor_no, roomId],
+      roleId === "1" || roleId === "3"
+        ? [room_name, floor_no, roomId]
+        : [room_name, floor_no, roomId, userId || null],
     );
 
     if (result.rows.length === 0) {

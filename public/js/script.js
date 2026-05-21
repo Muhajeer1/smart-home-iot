@@ -30,11 +30,11 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.setItem("role_id", result.user.role_id);
 
           if (String(result.user.role_id) === "3") {
-            window.location.href = "/technician.html";
+            window.location.href = "/technician";
           } else if (String(result.user.role_id) === "1") {
-            window.location.href = "/admin.html";
+            window.location.href = "/admin";
           } else {
-            window.location.href = "/dashboard.html";
+            window.location.href = "/dashboard";
           }
         } else {
           alert(result.error || "Login failed");

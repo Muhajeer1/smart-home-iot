@@ -2,58 +2,139 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Analytics</title>
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body>
     <div class="page">
-      <h1>Analytics</h1>
-      <p id="analyticsUser" class="meta"></p>
+      <header class="app-topbar">
+        <div class="brand"><span class="brand-mark">IoT</span> Smart Home</div>
+        <nav class="topnav">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/homes">Homes</a>
+          <a href="/activity">Events</a>
+          <a href="/alert-center">Alerts</a>
+        </nav>
+      </header>
 
-      <div class="card">
-        <h2>Number of Devices per Home</h2>
-        <button id="loadDevicesPerHome">Load Report</button>
-        <ul id="devicesPerHomeList"></ul>
-      </div>
+      <section class="page-hero">
+        <div>
+          <p class="page-kicker">Reports</p>
+          <h1>Analytics</h1>
+          <p id="analyticsUser" class="meta"></p>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Queries</span>
+            <span class="hero-panel-value">6 reports</span>
+          </div>
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Methods</span>
+            <span class="hero-panel-value">JOIN / GROUP BY</span>
+          </div>
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Scope</span>
+            <span class="hero-panel-value">Role based</span>
+          </div>
+        </div>
+      </section>
 
-      <div class="card">
-        <h2>Latest Reading per Sensor</h2>
-        <button id="loadLatestReadings">Load Report</button>
-        <button id="toggleLatestReadings" type="button">Hide Readings</button>
-        <ul id="latestReadingsList"></ul>
-      </div>
+      <div class="report-grid">
+        <div class="card report-card">
+          <div class="report-header">
+            <div>
+              <h2>Devices per Home</h2>
+              <p class="report-copy">How many IoT devices are installed in each home.</p>
+              <div class="report-tags">
+                <span>JOIN</span><span>COUNT</span><span>GROUP BY</span>
+              </div>
+            </div>
+            <button id="loadDevicesPerHome" class="btn-secondary">Refresh</button>
+          </div>
+          <ul id="devicesPerHomeList"></ul>
+        </div>
 
-      <div class="card">
-        <h2>Abnormal Sensor Readings</h2>
-        <button id="loadAbnormalReadings">Load Report</button>
-        <button id="toggleAbnormalReadings" type="button">Hide Readings</button>
-        <ul id="abnormalReadingsList"></ul>
-      </div>
+        <div class="card report-card report-card-wide">
+          <div class="report-header">
+            <div>
+              <h2>Latest Reading per Sensor</h2>
+              <p class="report-copy">Most recent value with home, room and device context.</p>
+              <div class="report-tags">
+                <span>JOIN</span><span>SUBQUERY</span><span>MAX</span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button id="loadLatestReadings" class="btn-secondary">Refresh</button>
+              <button id="toggleLatestReadings" type="button" class="btn-secondary">Hide Readings</button>
+            </div>
+          </div>
+          <ul id="latestReadingsList"></ul>
+        </div>
 
-      <div class="card">
-        <h2>Alert Summary by Type (Last 30 Days)</h2>
-        <button id="loadAlertSummary">Load Report</button>
-        <ul id="alertSummaryList"></ul>
-      </div>
+        <div class="card report-card report-card-wide">
+          <div class="report-header">
+            <div>
+              <h2>Abnormal Reading Summary</h2>
+              <p class="report-copy">Sensors whose readings fall outside normal ranges.</p>
+              <div class="report-tags">
+                <span>FILTER</span><span>COUNT</span><span>MIN / MAX</span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button id="loadAbnormalReadings" class="btn-secondary">Refresh</button>
+              <button id="toggleAbnormalReadings" type="button" class="btn-secondary">Hide Summary</button>
+            </div>
+          </div>
+          <ul id="abnormalReadingsList"></ul>
+        </div>
 
-      <div class="card">
-        <h2>Average Reading Value by Sensor Type</h2>
-        <button id="loadAverageReadings">Load Report</button>
-        <ul id="averageReadingsList"></ul>
-      </div>
+        <div class="card report-card">
+          <div class="report-header">
+            <div>
+              <h2>Alert Summary</h2>
+              <p class="report-copy">Alert counts grouped by type in the last 30 days.</p>
+              <div class="report-tags">
+                <span>DATE FILTER</span><span>COUNT</span><span>GROUP BY</span>
+              </div>
+            </div>
+            <button id="loadAlertSummary" class="btn-secondary">Refresh</button>
+          </div>
+          <ul id="alertSummaryList"></ul>
+        </div>
 
-      <div class="card">
-        <h2>Number of Rooms per Home</h2>
-        <button id="loadRoomsPerHome">Load Report</button>
-        <ul id="roomsPerHomeList"></ul>
-      </div>
+        <div class="card report-card">
+          <div class="report-header">
+            <div>
+              <h2>Average Reading by Sensor Type</h2>
+              <p class="report-copy">Average values across readings grouped by sensor type.</p>
+              <div class="report-tags">
+                <span>JOIN</span><span>AVG</span><span>GROUP BY</span>
+              </div>
+            </div>
+            <button id="loadAverageReadings" class="btn-secondary">Refresh</button>
+          </div>
+          <ul id="averageReadingsList"></ul>
+        </div>
 
-      <div class="nav-links">
-        <a href="/homes.html">Back to Homes</a>
+        <div class="card report-card">
+          <div class="report-header">
+            <div>
+              <h2>Rooms per Home</h2>
+              <p class="report-copy">Room counts for each home in the system.</p>
+              <div class="report-tags">
+                <span>JOIN</span><span>COUNT</span><span>GROUP BY</span>
+              </div>
+            </div>
+            <button id="loadRoomsPerHome" class="btn-secondary">Refresh</button>
+          </div>
+          <ul id="roomsPerHomeList"></ul>
+        </div>
       </div>
     </div>
 
     <script src="/js/format.js"></script>
+    <script src="/js/ui.js"></script>
     <script src="/js/analytics.js"></script>
   </body>
 </html>

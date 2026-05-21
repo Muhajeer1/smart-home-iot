@@ -2,56 +2,118 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body>
     <div class="page">
-      <h1>Admin Dashboard</h1>
-      <p id="adminUser" class="meta"></p>
+      <header class="app-topbar">
+        <div class="brand"><span class="brand-mark">IoT</span> Smart Home</div>
+        <nav class="topnav">
+          <a href="/analytics">Analytics</a>
+          <a href="/activity">Events</a>
+          <a href="/alert-center">Alerts</a>
+          <a href="/" id="logoutLink">Logout</a>
+        </nav>
+      </header>
 
-      <div class="card">
-        <h2>All Users</h2>
-        <ul id="userList"></ul>
-      </div>
-
-      <div class="card">
-        <h2>All Homes</h2>
-        <ul id="homeList"></ul>
-      </div>
-
-      <div class="card">
-        <h2>All Devices</h2>
-        <ul id="deviceList"></ul>
-      </div>
-
-      <div class="card">
-        <h2>IoT Reading Simulator</h2>
-        <p class="meta">
-          Generate sensor readings for the demo database when real devices are not connected.
-        </p>
-        <div class="form-actions">
-          <input
-            id="adminBulkReadingCount"
-            type="number"
-            min="1"
-            max="50000"
-            value="5000"
-          />
-          <button id="adminBulkGenerateBtn" type="button">Generate Dataset</button>
+      <section class="page-hero">
+        <div>
+          <p class="page-kicker">Administration</p>
+          <h1>Admin Dashboard</h1>
+          <p id="adminUser" class="meta"></p>
         </div>
-        <ul id="adminSimulatorList"></ul>
-        <p id="adminSimulatorMessage" class="message"></p>
-      </div>
+        <div class="hero-panel">
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Access</span>
+            <span class="hero-panel-value">Global</span>
+          </div>
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Scope</span>
+            <span class="hero-panel-value">Users / Homes / Devices</span>
+          </div>
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Tools</span>
+            <span class="hero-panel-value">Simulator</span>
+          </div>
+        </div>
+      </section>
 
-      <div class="nav-links">
-        <a href="/events.html">Events</a>
-        <a href="/alerts.html">Alerts</a>
-        <a href="/" id="logoutLink">Logout</a>
-      </div>
+      <section class="control-summary">
+        <div class="summary-box">
+          <span class="summary-label">Users</span>
+          <strong id="adminUserCount">0</strong>
+          <p class="summary-note">Registered accounts in the system.</p>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">Homes</span>
+          <strong id="adminHomeCount">0</strong>
+          <p class="summary-note">Smart homes across all users.</p>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">Devices</span>
+          <strong id="adminDeviceCount">0</strong>
+          <p class="summary-note">Installed IoT devices.</p>
+        </div>
+      </section>
+
+      <section class="control-grid">
+        <div class="card control-card">
+          <div class="report-header">
+            <div>
+              <h2>Users</h2>
+              <p class="report-copy">Manage registered accounts and role assignments.</p>
+            </div>
+          </div>
+          <ul id="userList"></ul>
+        </div>
+
+        <div class="card control-card">
+          <div class="report-header">
+            <div>
+              <h2>Homes</h2>
+              <p class="report-copy">Review homes and ownership across the system.</p>
+            </div>
+          </div>
+          <ul id="homeList"></ul>
+        </div>
+
+        <div class="card control-card control-card-wide">
+          <div class="report-header">
+            <div>
+              <h2>Devices</h2>
+              <p class="report-copy">Monitor devices, locations and operational state.</p>
+            </div>
+          </div>
+          <ul id="deviceList"></ul>
+        </div>
+
+        <div class="card control-card control-card-wide">
+          <div class="report-header">
+            <div>
+              <h2>IoT Reading Simulator</h2>
+              <p class="report-copy">Generate demo readings when real devices are not connected.</p>
+            </div>
+            <div class="form-actions">
+              <input
+                id="adminBulkReadingCount"
+                type="number"
+                min="1"
+                max="50000"
+                value="5000"
+              />
+              <button id="adminBulkGenerateBtn" type="button">Generate Dataset</button>
+            </div>
+          </div>
+          <ul id="adminSimulatorList"></ul>
+          <p id="adminSimulatorMessage" class="message"></p>
+        </div>
+      </section>
     </div>
 
     <script src="/js/format.js"></script>
+    <script src="/js/ui.js"></script>
     <script src="/js/simulator.js"></script>
     <script src="/js/admin.js"></script>
   </body>

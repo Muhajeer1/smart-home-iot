@@ -28,15 +28,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadUsers() {
   try {
-    const response = await fetch("/admin/users");
+    const roleId = localStorage.getItem("role_id") || "";
+    const response = await fetch(`/admin/users?roleId=${encodeURIComponent(roleId)}`);
     const users = await response.json();
 
     const userList = document.getElementById("userList");
     userList.innerHTML = "";
+    document.getElementById("adminUserCount").textContent = users.length;
 
     users.forEach((user) => {
       const li = document.createElement("li");
-      li.className = "list-row";
+      li.className = "management-row";
 
       const details = createDetailList([
         { label: "User", value: user.full_name, primary: true },
@@ -49,13 +51,18 @@ async function loadUsers() {
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Delete";
+      deleteBtn.className = "btn-danger";
       deleteBtn.addEventListener("click", async () => {
         const confirmed = confirm(`Delete user ${user.full_name}?`);
         if (!confirmed) return;
 
-        const response = await fetch(`/admin/users/${user.user_id}`, {
+        const roleId = localStorage.getItem("role_id") || "";
+        const response = await fetch(
+          `/admin/users/${user.user_id}?roleId=${encodeURIComponent(roleId)}`,
+          {
           method: "DELETE",
-        });
+          },
+        );
 
         const result = await response.json();
 
@@ -80,15 +87,17 @@ async function loadUsers() {
 
 async function loadHomes() {
   try {
-    const response = await fetch("/admin/homes");
+    const roleId = localStorage.getItem("role_id") || "";
+    const response = await fetch(`/admin/homes?roleId=${encodeURIComponent(roleId)}`);
     const homes = await response.json();
 
     const homeList = document.getElementById("homeList");
     homeList.innerHTML = "";
+    document.getElementById("adminHomeCount").textContent = homes.length;
 
     homes.forEach((home) => {
       const li = document.createElement("li");
-      li.className = "list-row";
+      li.className = "management-row";
 
       const details = createDetailList([
         { label: "Home", value: home.home_name, primary: true },
@@ -101,13 +110,18 @@ async function loadHomes() {
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Delete";
+      deleteBtn.className = "btn-danger";
       deleteBtn.addEventListener("click", async () => {
         const confirmed = confirm(`Delete home ${home.home_name}?`);
         if (!confirmed) return;
 
-        const response = await fetch(`/admin/homes/${home.home_id}`, {
+        const roleId = localStorage.getItem("role_id") || "";
+        const response = await fetch(
+          `/admin/homes/${home.home_id}?roleId=${encodeURIComponent(roleId)}`,
+          {
           method: "DELETE",
-        });
+          },
+        );
 
         const result = await response.json();
 
@@ -132,15 +146,17 @@ async function loadHomes() {
 
 async function loadDevices() {
   try {
-    const response = await fetch("/admin/devices");
+    const roleId = localStorage.getItem("role_id") || "";
+    const response = await fetch(`/admin/devices?roleId=${encodeURIComponent(roleId)}`);
     const devices = await response.json();
 
     const deviceList = document.getElementById("deviceList");
     deviceList.innerHTML = "";
+    document.getElementById("adminDeviceCount").textContent = devices.length;
 
     devices.forEach((device) => {
       const li = document.createElement("li");
-      li.className = "list-row";
+      li.className = "management-row";
 
       const details = createDetailList([
         { label: "Device", value: formatLabel(device.device_type), primary: true },
@@ -160,13 +176,18 @@ async function loadDevices() {
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Delete";
+      deleteBtn.className = "btn-danger";
       deleteBtn.addEventListener("click", async () => {
         const confirmed = confirm(`Delete device ${formatLabel(device.device_type)}?`);
         if (!confirmed) return;
 
-        const response = await fetch(`/admin/devices/${device.device_id}`, {
+        const roleId = localStorage.getItem("role_id") || "";
+        const response = await fetch(
+          `/admin/devices/${device.device_id}?roleId=${encodeURIComponent(roleId)}`,
+          {
           method: "DELETE",
-        });
+          },
+        );
 
         const result = await response.json();
 

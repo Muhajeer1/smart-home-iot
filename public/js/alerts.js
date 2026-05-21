@@ -6,17 +6,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("alertsUser").textContent = `Logged in as: ${fullName}`;
 
-  if (roleId === "1") {
-    backLink.href = "/admin.html";
+  if (roleId === "1" && backLink) {
+    backLink.href = "/admin";
     backLink.textContent = "Back to Admin";
-  } else if (roleId === "3") {
-    backLink.href = "/technician.html";
+  } else if (roleId === "3" && backLink) {
+    backLink.href = "/technician";
     backLink.textContent = "Back to Technician";
   }
+
+  document.querySelectorAll("[data-alert-status]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document
+        .querySelectorAll("[data-alert-status]")
+        .forEach((tab) => tab.classList.remove("is-active"));
+      button.classList.add("is-active");
+      alertFilter.value = button.dataset.alertStatus;
+      loadAlerts();
+    });
+  });
 
   alertFilter.addEventListener("change", loadAlerts);
   loadAlerts();
 });
+
+function updateAlertSummary(alerts) {
+  const activeCount = alerts.filter((alert) => !alert.is_resolved).length;
+  const resolvedCount = alerts.filter((alert) => alert.is_resolved).length;
+  const highCount = alerts.filter(
+    (alert) => String(alert.severity || "").toLowerCase() === "high",
+  ).length;
+
+  document.getElementById("activeAlertCount").textContent = activeCount;
+  document.getElementById("resolvedAlertCount").textContent = resolvedCount;
+  document.getElementById("highAlertCount").textContent = highCount;
+}
 
 async function loadAlerts() {
   const userId = localStorage.getItem("user_id");
@@ -39,6 +62,8 @@ async function loadAlerts() {
       return;
     }
 
+    updateAlertSummary(alerts);
+
     if (alerts.length === 0) {
       setMessage(alertMessage, "No alerts found.", "good");
       return;
@@ -46,29 +71,37 @@ async function loadAlerts() {
 
     alerts.forEach((alert) => {
       const li = document.createElement("li");
-      li.className = "list-row";
+      const severityTone = getTone(alert.severity) || "warning";
+      li.className = `incident-card incident-${severityTone}`;
 
       const time = new Date(alert.created_at).toLocaleString();
       const resolvedLabel = alert.is_resolved ? "Resolved" : "Open";
 
+      const content = document.createElement("div");
+      content.className = "incident-content";
+
+      const header = document.createElement("div");
+      header.className = "incident-header";
+      header.innerHTML = `
+        <div>
+          <span class="incident-type">${formatLabel(alert.alert_type)}</span>
+          <p class="incident-time">${time}</p>
+        </div>
+        <div class="incident-badges">
+          <span class="status-badge status-${getTone(alert.severity) || "warning"}">${formatLabel(alert.severity)}</span>
+          <span class="status-badge status-${getTone(resolvedLabel)}">${resolvedLabel}</span>
+        </div>
+      `;
+
       const details = createDetailList([
-        {
-          label: "Alert",
-          value: formatLabel(alert.alert_type),
-          primary: true,
-          tone: getTone(alert.is_resolved ? "resolved" : alert.severity),
-        },
-        { label: "Severity", value: formatLabel(alert.severity), tone: getTone(alert.severity) },
-        { label: "Status", value: resolvedLabel, tone: getTone(resolvedLabel) },
         { label: "Home", value: alert.home_name },
         { label: "Room", value: alert.room_name },
         { label: "Device", value: formatLabel(alert.device_type) },
         { label: "Sensor", value: formatLabel(alert.sensor_type) },
-        { label: "Time", value: time },
       ]);
 
       const actions = document.createElement("span");
-      actions.className = "list-actions";
+      actions.className = "incident-actions";
 
       const toggleBtn = document.createElement("button");
       toggleBtn.textContent = alert.is_resolved ? "Reopen" : "Resolve";
@@ -84,8 +117,10 @@ async function loadAlerts() {
       actions.appendChild(toggleBtn);
       actions.appendChild(deleteBtn);
 
-      li.appendChild(details);
-      li.appendChild(actions);
+      content.appendChild(header);
+      content.appendChild(details);
+      content.appendChild(actions);
+      li.appendChild(content);
       alertList.appendChild(li);
     });
   } catch (error) {
@@ -96,15 +131,20 @@ async function loadAlerts() {
 
 async function updateAlertResolution(alertId, isResolved) {
   const alertMessage = document.getElementById("alertMessage");
+  const userId = localStorage.getItem("user_id") || "";
+  const roleId = localStorage.getItem("role_id") || "";
 
   try {
-    const response = await fetch(`/alerts/${alertId}/resolve`, {
+    const response = await fetch(
+      `/alerts/${alertId}/resolve?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+      {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ is_resolved: isResolved }),
-    });
+      },
+    );
     const result = await response.json();
 
     if (response.ok) {
@@ -121,6 +161,8 @@ async function updateAlertResolution(alertId, isResolved) {
 
 async function deleteAlert(alertId) {
   const alertMessage = document.getElementById("alertMessage");
+  const userId = localStorage.getItem("user_id") || "";
+  const roleId = localStorage.getItem("role_id") || "";
   const confirmed = confirm("Delete this alert?");
 
   if (!confirmed) {
@@ -128,9 +170,12 @@ async function deleteAlert(alertId) {
   }
 
   try {
-    const response = await fetch(`/alerts/${alertId}`, {
+    const response = await fetch(
+      `/alerts/${alertId}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+      {
       method: "DELETE",
-    });
+      },
+    );
     const result = await response.json();
 
     if (response.ok) {

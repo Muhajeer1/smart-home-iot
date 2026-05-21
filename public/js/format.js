@@ -94,10 +94,73 @@
     });
   }
 
+  function appendBarChart(list, rows, options) {
+    const values = rows.map((row) => Number(row[options.valueKey]) || 0);
+    const maxValue = Math.max(...values, 1);
+
+    rows.forEach((row) => {
+      const value = Number(row[options.valueKey]) || 0;
+      const percent = Math.max((value / maxValue) * 100, value > 0 ? 4 : 0);
+
+      const item = document.createElement("div");
+      item.className = "chart-row";
+
+      const name = document.createElement("span");
+      name.className = "chart-name";
+      name.textContent = options.nameFormatter
+        ? options.nameFormatter(row)
+        : formatLabel(row[options.nameKey]);
+
+      const track = document.createElement("span");
+      track.className = "chart-track";
+
+      const fill = document.createElement("span");
+      fill.className = "chart-fill";
+      fill.style.width = `${percent}%`;
+
+      const chartValue = document.createElement("span");
+      chartValue.className = "chart-value";
+      chartValue.textContent = options.valueFormatter
+        ? options.valueFormatter(value, row)
+        : String(value);
+
+      track.appendChild(fill);
+      item.appendChild(name);
+      item.appendChild(track);
+      item.appendChild(chartValue);
+      list.appendChild(item);
+    });
+  }
+
+  function createReportRow(title, details, value) {
+    const row = document.createElement("li");
+    row.className = "report-row";
+
+    const main = document.createElement("span");
+    main.className = "report-main";
+    main.textContent = title;
+
+    const detailWrap = document.createElement("span");
+    detailWrap.className = "report-details";
+    detailWrap.appendChild(createDetailList(details));
+
+    const result = document.createElement("span");
+    result.className = "report-value";
+    result.textContent = value ?? "";
+
+    row.appendChild(main);
+    row.appendChild(detailWrap);
+    row.appendChild(result);
+
+    return row;
+  }
+
   window.formatLabel = formatLabel;
   window.formatInline = formatInline;
   window.createDetailList = createDetailList;
   window.getTone = getTone;
   window.setMessage = setMessage;
   window.setupToggleButton = setupToggleButton;
+  window.appendBarChart = appendBarChart;
+  window.createReportRow = createReportRow;
 })();

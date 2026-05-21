@@ -25,6 +25,8 @@ exports.getHomesByUser = async (req, res) => {
 exports.createHome = async (req, res) => {
   try {
     const owner_user_id = req.body.owner_user_id;
+    const userId = req.body.userId;
+    const roleId = String(req.body.roleId || "");
     const home_name = normalizeText(req.body.home_name);
     const address_text = normalizeText(req.body.address_text);
 
@@ -36,6 +38,10 @@ exports.createHome = async (req, res) => {
       ])
     ) {
       return;
+    }
+
+    if (roleId !== "1" && String(owner_user_id) !== String(userId)) {
+      return res.status(403).json({ error: "You can only create homes for your own account." });
     }
 
     const result = await db.query(
@@ -69,14 +75,24 @@ exports.createHome = async (req, res) => {
 exports.deleteHome = async (req, res) => {
   try {
     const homeId = req.params.id;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
+    const params = [homeId];
+    const ownerSql =
+      roleId === "1" || roleId === "3" ? "" : "AND owner_user_id = $2";
+
+    if (ownerSql) {
+      params.push(userId || null);
+    }
 
     const result = await db.query(
       `
       DELETE FROM Home
       WHERE home_id = $1
+      ${ownerSql}
       RETURNING *
       `,
-      [homeId],
+      params,
     );
 
     if (result.rows.length === 0) {

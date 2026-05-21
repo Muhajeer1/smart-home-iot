@@ -3,6 +3,20 @@ const { normalizeKey, sendDbError, validateEnum } = require("../utils/http");
 
 const ALERT_FILTERS = ["active", "resolved", "all"];
 
+function buildAlertAccess(req, ownerParamIndex) {
+  const userId = req.query.userId;
+  const roleId = String(req.query.roleId || "");
+
+  if (roleId === "1" || roleId === "3") {
+    return { sql: "", params: [] };
+  }
+
+  return {
+    sql: `AND h.owner_user_id = $${ownerParamIndex}`,
+    params: [userId || null],
+  };
+}
+
 exports.getAlerts = async (req, res) => {
   try {
     const userId = req.query.userId;
@@ -65,15 +79,20 @@ exports.updateAlertResolution = async (req, res) => {
   try {
     const alertId = req.params.id;
     const isResolved = req.body.is_resolved === true || req.body.is_resolved === "true";
+    const access = buildAlertAccess(req, 3);
 
     const result = await db.query(
       `
-      UPDATE Alert
-      SET is_resolved = $1
-      WHERE alert_id = $2
-      RETURNING *
+      UPDATE Alert a
+      SET is_resolved = $1,
+          resolved_at = CASE WHEN $1 = TRUE THEN NOW() ELSE NULL END
+      FROM Home h
+      WHERE a.home_id = h.home_id
+        AND a.alert_id = $2
+        ${access.sql}
+      RETURNING a.*
       `,
-      [isResolved, alertId],
+      [isResolved, alertId, ...access.params],
     );
 
     if (result.rows.length === 0) {
@@ -93,14 +112,18 @@ exports.updateAlertResolution = async (req, res) => {
 exports.deleteAlert = async (req, res) => {
   try {
     const alertId = req.params.id;
+    const access = buildAlertAccess(req, 2);
 
     const result = await db.query(
       `
-      DELETE FROM Alert
-      WHERE alert_id = $1
-      RETURNING *
+      DELETE FROM Alert a
+      USING Home h
+      WHERE a.home_id = h.home_id
+        AND a.alert_id = $1
+        ${access.sql}
+      RETURNING a.*
       `,
-      [alertId],
+      [alertId, ...access.params],
     );
 
     if (result.rows.length === 0) {

@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setupToggleButton(
     "toggleAbnormalReadings",
     "abnormalReadingsList",
-    "Hide Readings",
-    "Show Readings",
+    "Hide Summary",
+    "Show Summary",
   );
 
   document
@@ -40,26 +40,33 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("loadRoomsPerHome")
     .addEventListener("click", loadRoomsPerHome);
+
+  loadDevicesPerHome();
+  loadLatestReadings();
+  loadAbnormalReadings();
+  loadAlertSummary();
+  loadAverageReadings();
+  loadRoomsPerHome();
 });
+
+function analyticsScopeQuery() {
+  const userId = localStorage.getItem("user_id") || "";
+  const roleId = localStorage.getItem("role_id") || "";
+
+  return `userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`;
+}
 
 async function loadDevicesPerHome() {
   try {
-    const response = await fetch("/analytics/devices-per-home");
+    const response = await fetch(`/analytics/devices-per-home?${analyticsScopeQuery()}`);
     const data = await response.json();
 
     const list = document.getElementById("devicesPerHomeList");
     list.innerHTML = "";
 
-    data.forEach((row) => {
-      const li = document.createElement("li");
-      li.className = "list-row";
-      li.appendChild(
-        createDetailList([
-          { label: "Home", value: row.home_name, primary: true },
-          { label: "Devices", value: row.device_count },
-        ]),
-      );
-      list.appendChild(li);
+    appendBarChart(list, data, {
+      nameKey: "home_name",
+      valueKey: "device_count",
     });
   } catch (err) {
     console.error("Devices per home error:", err);
@@ -68,23 +75,25 @@ async function loadDevicesPerHome() {
 
 async function loadLatestReadings() {
   try {
-    const response = await fetch("/analytics/latest-readings");
+    const response = await fetch(`/analytics/latest-readings?${analyticsScopeQuery()}`);
     const data = await response.json();
 
     const list = document.getElementById("latestReadingsList");
     list.innerHTML = "";
 
     data.forEach((row) => {
-      const li = document.createElement("li");
-      li.className = "list-row";
-      li.appendChild(
-        createDetailList([
-          { label: "Sensor", value: formatLabel(row.sensor_type), primary: true },
-          { label: "Value", value: row.reading_value },
-          { label: "Time", value: new Date(row.reading_time).toLocaleString() },
-        ]),
+      list.appendChild(
+        createReportRow(
+          formatLabel(row.sensor_type),
+          [
+            { label: "Device", value: formatLabel(row.device_type) },
+            { label: "Home", value: row.home_name },
+            { label: "Room", value: row.room_name },
+            { label: "Time", value: new Date(row.reading_time).toLocaleString() },
+          ],
+          row.reading_value,
+        ),
       );
-      list.appendChild(li);
     });
   } catch (err) {
     console.error("Latest readings error:", err);
@@ -93,24 +102,33 @@ async function loadLatestReadings() {
 
 async function loadAbnormalReadings() {
   try {
-    const response = await fetch("/analytics/abnormal-readings");
+    const response = await fetch(`/analytics/abnormal-readings?${analyticsScopeQuery()}`);
     const data = await response.json();
 
     const list = document.getElementById("abnormalReadingsList");
     list.innerHTML = "";
 
     data.forEach((row) => {
-      const li = document.createElement("li");
-      li.className = "list-row";
-      li.appendChild(
-        createDetailList([
-          { label: "Sensor", value: formatLabel(row.sensor_type), primary: true },
-          { label: "Value", value: row.reading_value },
-          { label: "Normal Range", value: `${row.normal_min} - ${row.normal_max}` },
-        ]),
+      const lastAbnormalTime = row.last_abnormal_time
+        ? new Date(row.last_abnormal_time).toLocaleString()
+        : "N/A";
+
+      list.appendChild(
+        createReportRow(
+          formatLabel(row.sensor_type),
+          [
+            { label: "Device", value: formatLabel(row.device_type) },
+            { label: "Home", value: row.home_name },
+            { label: "Room", value: row.room_name },
+            { label: "Last", value: lastAbnormalTime },
+            { label: "Range", value: `${row.normal_min} - ${row.normal_max}` },
+            { label: "Min / Max", value: `${row.min_abnormal_value} / ${row.max_abnormal_value}` },
+          ],
+          `${row.abnormal_count} abnormal`,
+        ),
       );
-      list.appendChild(li);
     });
+
   } catch (err) {
     console.error("Abnormal readings error:", err);
   }
@@ -118,22 +136,15 @@ async function loadAbnormalReadings() {
 
 async function loadAlertSummary() {
   try {
-    const response = await fetch("/analytics/alert-summary");
+    const response = await fetch(`/analytics/alert-summary?${analyticsScopeQuery()}`);
     const data = await response.json();
 
     const list = document.getElementById("alertSummaryList");
     list.innerHTML = "";
 
-    data.forEach((row) => {
-      const li = document.createElement("li");
-      li.className = "list-row";
-      li.appendChild(
-        createDetailList([
-          { label: "Alert Type", value: formatLabel(row.alert_type), primary: true },
-          { label: "Last 30 Days", value: row.alert_count },
-        ]),
-      );
-      list.appendChild(li);
+    appendBarChart(list, data, {
+      nameFormatter: (row) => formatLabel(row.alert_type),
+      valueKey: "alert_count",
     });
   } catch (err) {
     console.error("Alert summary error:", err);
@@ -142,24 +153,18 @@ async function loadAlertSummary() {
 
 async function loadAverageReadings() {
   try {
-    const response = await fetch("/analytics/average-reading-by-sensor-type");
+    const response = await fetch(
+      `/analytics/average-reading-by-sensor-type?${analyticsScopeQuery()}`,
+    );
     const data = await response.json();
 
     const list = document.getElementById("averageReadingsList");
     list.innerHTML = "";
 
-    data.forEach((row) => {
-      const average = Number(row.average_reading_value).toFixed(2);
-      const li = document.createElement("li");
-      li.className = "list-row";
-      li.appendChild(
-        createDetailList([
-          { label: "Sensor Type", value: formatLabel(row.sensor_type), primary: true },
-          { label: "Average Value", value: average },
-          { label: "Readings", value: row.reading_count },
-        ]),
-      );
-      list.appendChild(li);
+    appendBarChart(list, data, {
+      nameFormatter: (row) => formatLabel(row.sensor_type),
+      valueKey: "average_reading_value",
+      valueFormatter: (value) => value.toFixed(2),
     });
   } catch (err) {
     console.error("Average readings error:", err);
@@ -168,22 +173,15 @@ async function loadAverageReadings() {
 
 async function loadRoomsPerHome() {
   try {
-    const response = await fetch("/analytics/rooms-per-home");
+    const response = await fetch(`/analytics/rooms-per-home?${analyticsScopeQuery()}`);
     const data = await response.json();
 
     const list = document.getElementById("roomsPerHomeList");
     list.innerHTML = "";
 
-    data.forEach((row) => {
-      const li = document.createElement("li");
-      li.className = "list-row";
-      li.appendChild(
-        createDetailList([
-          { label: "Home", value: row.home_name, primary: true },
-          { label: "Rooms", value: row.room_count },
-        ]),
-      );
-      list.appendChild(li);
+    appendBarChart(list, data, {
+      nameKey: "home_name",
+      valueKey: "room_count",
     });
   } catch (err) {
     console.error("Rooms per home error:", err);

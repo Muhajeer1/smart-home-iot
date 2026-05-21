@@ -2,25 +2,75 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Events</title>
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body>
     <div class="page">
-      <h1>System Events</h1>
-      <p id="eventsUser" class="meta"></p>
+      <header class="app-topbar">
+        <div class="brand"><span class="brand-mark">IoT</span> Smart Home</div>
+        <nav class="topnav">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/analytics">Analytics</a>
+          <a href="/alert-center">Alerts</a>
+        </nav>
+      </header>
 
-      <div class="card">
-        <h2>All Events</h2>
-        <ul id="eventList"></ul>
-      </div>
+      <section class="page-hero">
+        <div>
+          <p class="page-kicker">System History</p>
+          <h1>System Events</h1>
+          <p id="eventsUser" class="meta"></p>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">View</span>
+            <span class="hero-panel-value">Timeline</span>
+          </div>
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Source</span>
+            <span class="hero-panel-value">Application Logs</span>
+          </div>
+          <div class="hero-panel-row">
+            <span class="hero-panel-label">Order</span>
+            <span class="hero-panel-value">Newest First</span>
+          </div>
+        </div>
+      </section>
 
-      <div id="eventsBackLinks" class="nav-links">
-        <a href="/dashboard.html">Back to Menu</a>
-      </div>
+      <section class="event-summary">
+        <div class="summary-box">
+          <span class="summary-label">Total Events</span>
+          <strong id="totalEventCount">0</strong>
+          <p class="summary-note">Stored activity records.</p>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">Device Events</span>
+          <strong id="deviceEventCount">0</strong>
+          <p class="summary-note">Device creation and state changes.</p>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">Reading Events</span>
+          <strong id="readingEventCount">0</strong>
+          <p class="summary-note">Generated IoT reading activity.</p>
+        </div>
+      </section>
+
+      <section class="card activity-center">
+        <div class="report-header">
+          <div>
+            <h2>Activity Timeline</h2>
+            <p class="report-copy">Chronological history of homes, rooms, devices and generated readings.</p>
+          </div>
+          <button id="toggleEvents" type="button" class="btn-secondary">Collapse Timeline</button>
+        </div>
+        <ul id="eventList" class="timeline-list"></ul>
+      </section>
     </div>
 
     <script src="/js/format.js"></script>
+    <script src="/js/ui.js"></script>
     <script src="/js/events.js"></script>
   </body>
 </html>

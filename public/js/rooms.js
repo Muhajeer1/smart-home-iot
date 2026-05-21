@@ -27,6 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = {
       home_id,
+      userId: localStorage.getItem("user_id") || "",
+      roleId: localStorage.getItem("role_id") || "",
       room_name: roomForm.room_name.value,
       floor_no: roomForm.floor_no.value,
     };
@@ -58,10 +60,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadRooms() {
   const home_id = localStorage.getItem("home_id");
+  const userId = localStorage.getItem("user_id") || "";
+  const roleId = localStorage.getItem("role_id") || "";
   const roomFilter = document.getElementById("roomFilter");
 
   try {
-    const response = await fetch(`/rooms/${home_id}`);
+    const response = await fetch(
+      `/rooms/${home_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+    );
     allRooms = await response.json();
     renderRooms(allRooms, roomFilter.value);
   } catch (err) {
@@ -86,7 +92,7 @@ function renderRooms(rooms, filterText = "") {
     openBtn.addEventListener("click", () => {
       localStorage.setItem("room_id", room.room_id);
       localStorage.setItem("room_name", room.room_name);
-      window.location.href = "/devices.html";
+      window.location.href = "/devices";
     });
 
     const details = createDetailList([
@@ -107,7 +113,11 @@ function renderRooms(rooms, filterText = "") {
       if (newFloor === null) return;
 
       try {
-        const response = await fetch(`/rooms/${room.room_id}`, {
+        const userId = localStorage.getItem("user_id") || "";
+        const roleId = localStorage.getItem("role_id") || "";
+        const response = await fetch(
+          `/rooms/${room.room_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+          {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -116,7 +126,8 @@ function renderRooms(rooms, filterText = "") {
             room_name: newName,
             floor_no: newFloor,
           }),
-        });
+          },
+        );
 
         const result = await response.json();
 

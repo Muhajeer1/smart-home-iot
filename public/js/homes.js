@@ -8,9 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const owner_user_id = localStorage.getItem("user_id");
+    const roleId = localStorage.getItem("role_id") || "";
 
     const data = {
       owner_user_id,
+      userId: owner_user_id,
+      roleId,
       home_name: homeForm.home_name.value,
       address_text: homeForm.address_text.value,
     };
@@ -66,16 +69,22 @@ async function loadHomes() {
       openBtn.addEventListener("click", () => {
         localStorage.setItem("home_id", home.home_id);
         localStorage.setItem("home_name", home.home_name);
-        window.location.href = "/rooms.html";
+        window.location.href = "/rooms";
       });
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Delete";
       deleteBtn.addEventListener("click", async () => {
+        const userId = localStorage.getItem("user_id") || "";
+        const roleId = localStorage.getItem("role_id") || "";
+
         try {
-          const response = await fetch(`/homes/${home.home_id}`, {
+          const response = await fetch(
+            `/homes/${home.home_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+            {
             method: "DELETE",
-          });
+            },
+          );
 
           const result = await response.json();
 

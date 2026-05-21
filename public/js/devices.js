@@ -29,6 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = {
       room_id,
+      userId: localStorage.getItem("user_id") || "",
+      roleId: localStorage.getItem("role_id") || "",
       device_type: deviceForm.device_type.value,
       brand_model: deviceForm.brand_model.value,
       serial_no: deviceForm.serial_no.value,
@@ -62,10 +64,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadDevices() {
   const room_id = localStorage.getItem("room_id");
+  const userId = localStorage.getItem("user_id") || "";
+  const roleId = localStorage.getItem("role_id") || "";
   const deviceFilter = document.getElementById("deviceFilter");
 
   try {
-    const response = await fetch(`/devices/${room_id}`);
+    const response = await fetch(
+      `/devices/${room_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+    );
     allDevices = await response.json();
     renderDevices(allDevices, deviceFilter.value);
   } catch (err) {
@@ -105,10 +111,16 @@ function renderDevices(devices, filterText = "") {
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", async () => {
+      const userId = localStorage.getItem("user_id") || "";
+      const roleId = localStorage.getItem("role_id") || "";
+
       try {
-        const response = await fetch(`/devices/${device.device_id}`, {
+        const response = await fetch(
+          `/devices/${device.device_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+          {
           method: "DELETE",
-        });
+          },
+        );
 
         const result = await response.json();
 
@@ -128,7 +140,7 @@ function renderDevices(devices, filterText = "") {
     openBn.addEventListener("click", async () => {
       localStorage.setItem("device_id", device.device_id);
       localStorage.setItem("device_type", device.device_type);
-      window.location.href = "/sensors.html";
+      window.location.href = "/sensors";
     });
 
     const stateBtn = document.createElement("button");
@@ -151,7 +163,11 @@ function renderDevices(devices, filterText = "") {
       }
 
       try {
-        const response = await fetch(`/devices/${device.device_id}`, {
+        const userId = localStorage.getItem("user_id") || "";
+        const roleId = localStorage.getItem("role_id") || "";
+        const response = await fetch(
+          `/devices/${device.device_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
+          {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -161,7 +177,8 @@ function renderDevices(devices, filterText = "") {
             brand_model: device.brand_model,
             status: normalizedStatus,
           }),
-        });
+          },
+        );
 
         const result = await response.json();
 

@@ -22,14 +22,28 @@ const SENSOR_TYPES = [
 exports.getSensorsByDevice = async (req, res) => {
   try {
     const deviceId = req.params.deviceId;
+    const userId = req.query.userId;
+    const roleId = String(req.query.roleId || "");
+    const params = [deviceId];
+    const ownerSql =
+      roleId === "1" || roleId === "3" ? "" : "AND h.owner_user_id = $2";
+
+    if (ownerSql) {
+      params.push(userId || null);
+    }
 
     const result = await db.query(
       `
-    SELECT * FROM Sensor
-    WHERE device_id = $1
-    ORDER BY sensor_id DESC
+      SELECT s.*
+      FROM Sensor s
+      JOIN Device d ON s.device_id = d.device_id
+      JOIN Room r ON d.room_id = r.room_id
+      JOIN Home h ON r.home_id = h.home_id
+      WHERE s.device_id = $1
+      ${ownerSql}
+      ORDER BY s.sensor_id DESC
         `,
-      [deviceId],
+      params,
     );
 
     res.json(result.rows);

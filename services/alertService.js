@@ -35,4 +35,25 @@ async function createAlert(home_id, sensor_id, alert_type, severity) {
   }
 }
 
-module.exports = { createAlert };
+async function createDeviceAlert(home_id, device_id, alert_type, severity) {
+  try {
+    const sensorResult = await db.query(
+      `
+      SELECT sensor_id
+      FROM Sensor
+      WHERE device_id = $1
+      ORDER BY sensor_id ASC
+      LIMIT 1
+      `,
+      [device_id],
+    );
+
+    const sensor_id = sensorResult.rows[0]?.sensor_id || null;
+    return createAlert(home_id, sensor_id, alert_type, severity);
+  } catch (error) {
+    console.error("CREATE DEVICE ALERT ERROR:", error.message);
+    return createAlert(home_id, null, alert_type, severity);
+  }
+}
+
+module.exports = { createAlert, createDeviceAlert };

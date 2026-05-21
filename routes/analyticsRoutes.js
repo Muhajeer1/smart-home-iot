@@ -3,6 +3,10 @@ const router = express.Router();
 const analyticsController = require("../controllers/analyticsController");
 
 router.get(
+  "/analytics/dashboard-summary/:userId",
+  analyticsController.getDashboardSummary,
+);
+router.get(
   "/analytics/devices-per-home",
   analyticsController.getDevicesPerHome,
 );
