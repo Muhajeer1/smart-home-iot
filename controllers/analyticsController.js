@@ -1,26 +1,52 @@
 const db = require("../db");
 const { sendDbError } = require("../utils/http");
+const { hasRole } = require("../utils/roles");
 
 function buildOwnerScope(req, homeAlias, params) {
-  const roleId = String(req.query.roleId || "");
-  const userId = req.query.userId;
+  const homeId = req.query.homeId;
+  const userId = req.user.user_id;
+  const conditions = [];
 
-  if (roleId === "1" || roleId === "3") {
-    return "";
+  if (homeId) {
+    params.push(homeId);
+    conditions.push(`${homeAlias}.home_id = $${params.length}`);
   }
 
-  if (!userId) {
-    params.push(null);
-    return `${homeAlias}.owner_user_id = $${params.length}`;
+  if (!hasRole(req.user, ["admin", "technician"])) {
+    params.push(userId || null);
+    conditions.push(`${homeAlias}.owner_user_id = $${params.length}`);
   }
 
-  params.push(userId);
-  return `${homeAlias}.owner_user_id = $${params.length}`;
+  return conditions.join(" AND ");
+}
+
+exports.getAnalyticsHomes = async (req, res) => {
+  try {
+    const params = [];
+    const ownerScope = buildOwnerScope(req, "h", params);
+    const whereSql = ownerScope ? `WHERE ${ownerScope}` : "";
+
+    const result = await db.query(
+      `
+      SELECT h.home_id, h.home_name, h.address_text, u.full_name AS owner_name
+      FROM Home h
+      JOIN "User" u ON h.owner_user_id = u.user_id
+      ${whereSql}
+      ORDER BY h.home_name ASC, h.home_id ASC
+      `,
+      params,
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("ANALYTICS HOMES ERROR:", error.message);
+    sendDbError(res, error);
+  }
 }
 
 exports.getDashboardSummary = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.user.user_id;
 
     const result = await db.query(
       `

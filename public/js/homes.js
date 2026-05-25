@@ -1,4 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await requireCurrentUser();
+  if (!user) return;
+
   const homeForm = document.getElementById("homeForm");
   const homeMessage = document.getElementById("homeMessage");
 
@@ -7,13 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   homeForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const owner_user_id = localStorage.getItem("user_id");
-    const roleId = localStorage.getItem("role_id") || "";
-
     const data = {
-      owner_user_id,
-      userId: owner_user_id,
-      roleId,
       home_name: homeForm.home_name.value,
       address_text: homeForm.address_text.value,
     };
@@ -44,10 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function loadHomes() {
-  const user_id = localStorage.getItem("user_id");
-
   try {
-    const response = await fetch(`/homes/${user_id}`);
+    const response = await fetch("/api/homes");
     const homes = await response.json();
 
     const homeList = document.getElementById("homeList");
@@ -75,16 +70,10 @@ async function loadHomes() {
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Delete";
       deleteBtn.addEventListener("click", async () => {
-        const userId = localStorage.getItem("user_id") || "";
-        const roleId = localStorage.getItem("role_id") || "";
-
         try {
-          const response = await fetch(
-            `/homes/${home.home_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
-            {
+          const response = await fetch(`/homes/${home.home_id}`, {
             method: "DELETE",
-            },
-          );
+          });
 
           const result = await response.json();
 

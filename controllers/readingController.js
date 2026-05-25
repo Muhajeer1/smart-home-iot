@@ -23,7 +23,7 @@ const DEFAULT_SENSOR_RANGES = {
 };
 
 function canSimulate(req) {
-  const roleId = String(req.body.roleId || req.query.roleId || "");
+  const roleId = String(req.user?.role_id || "");
   return roleId === "1" || roleId === "3";
 }
 
@@ -212,8 +212,8 @@ async function createBulkAlerts(client, abnormalSensors) {
 exports.getReadingsBySensor = async (req, res) => {
   try {
     const sensorId = req.params.sensorId;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const params = [sensorId];
     const ownerSql =
       roleId === "1" || roleId === "3" ? "" : "AND h.owner_user_id = $2";

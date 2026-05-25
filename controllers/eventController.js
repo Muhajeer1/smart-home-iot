@@ -3,8 +3,8 @@ const { sendDbError } = require("../utils/http");
 
 exports.getAllEvents = async (req, res) => {
   try {
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const params = [];
     const where = [];
 

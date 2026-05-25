@@ -1,6 +1,9 @@
 let allReadings = [];
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await requireCurrentUser();
+  if (!user) return;
+
   const simulatorPanel = document.getElementById("simulatorPanel");
   const simulatorHint = document.getElementById("simulatorHint");
   const simulateReadingBtn = document.getElementById("simulateReadingBtn");
@@ -10,8 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const sensor_id = localStorage.getItem("sensor_id");
   const sensor_type = localStorage.getItem("sensor_type");
-  const roleId = localStorage.getItem("role_id");
-  const canSimulateReadings = roleId === "1" || roleId === "3";
+  const canSimulateReadings = hasRole(user, ["admin", "technician"]);
 
   if (!sensor_id) {
     setMessage(readingMessage, "No sensor selected.", "error");
@@ -51,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ sensor_id, roleId }),
+        body: JSON.stringify({ sensor_id }),
       });
 
       const result = await response.json();
@@ -77,14 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadReadings() {
   const sensor_id = localStorage.getItem("sensor_id");
-  const userId = localStorage.getItem("user_id") || "";
-  const roleId = localStorage.getItem("role_id") || "";
   const readingFilter = document.getElementById("readingFilter");
 
   try {
-    const response = await fetch(
-      `/readings/${sensor_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
-    );
+    const response = await fetch(`/readings/${sensor_id}`);
     allReadings = await response.json();
     renderReadings(allReadings, readingFilter.value);
   } catch (err) {

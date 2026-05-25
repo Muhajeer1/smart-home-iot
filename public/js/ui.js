@@ -22,8 +22,9 @@
     }
 
     if (href === "/") {
-      link.addEventListener("click", () => {
-        localStorage.clear();
+      link.addEventListener("click", async (event) => {
+        event.preventDefault();
+        await logout();
       });
     }
 
@@ -31,13 +32,13 @@
   }
 
   function getRoleHome() {
-    const roleId = localStorage.getItem("role_id");
+    const roleName = getRoleName(window.currentUser);
 
-    if (roleId === "1") {
+    if (roleName === "admin") {
       return { label: "Admin", href: "/admin" };
     }
 
-    if (roleId === "3") {
+    if (roleName === "technician") {
       return { label: "Technician", href: "/technician" };
     }
 
@@ -45,9 +46,9 @@
   }
 
   function getRoleLinks() {
-    const roleId = localStorage.getItem("role_id");
+    const roleName = getRoleName(window.currentUser);
 
-    if (roleId === "1") {
+    if (roleName === "admin") {
       return [
         ["Admin", "/admin"],
         ["Analytics", "/analytics"],
@@ -56,7 +57,7 @@
       ];
     }
 
-    if (roleId === "3") {
+    if (roleName === "technician") {
       return [
         ["Technician", "/technician"],
         ["Analytics", "/analytics"],
@@ -75,16 +76,11 @@
   }
 
   function enforcePageAccess(currentPath) {
-    const roleId = localStorage.getItem("role_id");
+    const roleName = getRoleName(window.currentUser);
     const publicPaths = new Set(["/", "/index.html"]);
 
     if (publicPaths.has(currentPath)) {
       return true;
-    }
-
-    if (!roleId) {
-      window.location.replace("/");
-      return false;
     }
 
     const userWorkspacePaths = new Set([
@@ -96,17 +92,17 @@
       "/readings",
     ]);
 
-    if (roleId === "1" && (userWorkspacePaths.has(currentPath) || currentPath === "/technician")) {
+    if (roleName === "admin" && (userWorkspacePaths.has(currentPath) || currentPath === "/technician")) {
       window.location.replace("/admin");
       return false;
     }
 
-    if (roleId === "3" && (userWorkspacePaths.has(currentPath) || currentPath === "/admin")) {
+    if (roleName === "technician" && (userWorkspacePaths.has(currentPath) || currentPath === "/admin")) {
       window.location.replace("/technician");
       return false;
     }
 
-    if (roleId !== "1" && roleId !== "3" && (currentPath === "/admin" || currentPath === "/technician")) {
+    if (roleName === "user" && (currentPath === "/admin" || currentPath === "/technician")) {
       window.location.replace("/dashboard");
       return false;
     }
@@ -192,8 +188,17 @@
     hero.before(tools);
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     const currentPath = window.location.pathname;
+    const publicPaths = new Set(["/", "/index.html"]);
+
+    if (!publicPaths.has(currentPath)) {
+      const user = await requireCurrentUser();
+
+      if (!user) {
+        return;
+      }
+    }
 
     if (!enforcePageAccess(currentPath)) {
       return;
@@ -210,8 +215,9 @@
       }
 
       if (linkPath === "/") {
-        link.addEventListener("click", () => {
-          localStorage.clear();
+        link.addEventListener("click", async (event) => {
+          event.preventDefault();
+          await logout();
         });
       }
     });

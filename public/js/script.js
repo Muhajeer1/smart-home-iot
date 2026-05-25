@@ -28,10 +28,13 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.setItem("full_name", result.user.full_name);
           localStorage.setItem("email", result.user.email);
           localStorage.setItem("role_id", result.user.role_id);
+          localStorage.setItem("role_name", result.user.role_name || "");
 
-          if (String(result.user.role_id) === "3") {
+          const roleName = getRoleName(result.user);
+
+          if (roleName === "technician") {
             window.location.href = "/technician";
-          } else if (String(result.user.role_id) === "1") {
+          } else if (roleName === "admin") {
             window.location.href = "/admin";
           } else {
             window.location.href = "/dashboard";

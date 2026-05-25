@@ -15,10 +15,7 @@ async function initReadingSimulator(listId, messageId, bulkInputId, bulkButtonId
   }
 
   try {
-    const roleId = localStorage.getItem("role_id") || "";
-    const response = await fetch(
-      `/technician/sensors?roleId=${encodeURIComponent(roleId)}`,
-    );
+    const response = await fetch("/technician/sensors");
     const sensors = await response.json();
 
     list.innerHTML = "";
@@ -72,8 +69,6 @@ async function initReadingSimulator(listId, messageId, bulkInputId, bulkButtonId
 }
 
 async function generateSimulatedReading(sensorId, button, message) {
-  const roleId = localStorage.getItem("role_id") || "";
-
   try {
     button.disabled = true;
     setMessage(message, "Generating simulated reading...", "warning");
@@ -83,7 +78,7 @@ async function generateSimulatedReading(sensorId, button, message) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ sensor_id: sensorId, roleId }),
+      body: JSON.stringify({ sensor_id: sensorId }),
     });
 
     const result = await response.json();
@@ -109,7 +104,6 @@ async function generateSimulatedReading(sensorId, button, message) {
 
 async function generateBulkReadings(input, button, message) {
   const count = input.value || 5000;
-  const roleId = localStorage.getItem("role_id") || "";
   const confirmed = confirm(
     `Generate ${count} simulated readings across all sensors?`,
   );
@@ -127,7 +121,7 @@ async function generateBulkReadings(input, button, message) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ count, roleId }),
+      body: JSON.stringify({ count }),
     });
 
     const result = await response.json();

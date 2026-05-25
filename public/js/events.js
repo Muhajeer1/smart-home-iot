@@ -1,6 +1,9 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const fullName = localStorage.getItem("full_name");
-  const roleId = localStorage.getItem("role_id");
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await requireCurrentUser();
+  if (!user) return;
+
+  const fullName = user.full_name;
+  const roleName = getRoleName(user);
   const backLinks = document.getElementById("eventsBackLinks");
 
   document.getElementById("eventsUser").textContent =
@@ -13,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Expand Timeline",
   );
 
-  if (roleId === "1" && backLinks) {
+  if (roleName === "admin" && backLinks) {
     backLinks.style.display = "none";
   }
 
@@ -34,17 +37,26 @@ function updateEventSummary(events) {
 }
 
 async function loadEvents() {
+  const eventList = document.getElementById("eventList");
+
   try {
-    const userId = localStorage.getItem("user_id") || "";
-    const roleId = localStorage.getItem("role_id") || "";
-    const response = await fetch(
-      `/events?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
-    );
+    const response = await fetch("/events");
     const events = await response.json();
 
-    const eventList = document.getElementById("eventList");
     eventList.innerHTML = "";
+
+    if (!response.ok || !Array.isArray(events)) {
+      updateEventSummary([]);
+      eventList.innerHTML = `<li class="timeline-item"><div class="timeline-body">Failed to load events: ${events.error || "unknown error"}</div></li>`;
+      return;
+    }
+
     updateEventSummary(events);
+
+    if (events.length === 0) {
+      eventList.innerHTML = `<li class="timeline-item"><div class="timeline-body">No events found yet.</div></li>`;
+      return;
+    }
 
     events.forEach((event) => {
       const li = document.createElement("li");
@@ -82,5 +94,7 @@ async function loadEvents() {
     });
   } catch (error) {
     console.error("LOAD EVENTS ERROR:", error);
+    updateEventSummary([]);
+    eventList.innerHTML = `<li class="timeline-item"><div class="timeline-body">Server error while loading events.</div></li>`;
   }
 }

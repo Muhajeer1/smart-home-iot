@@ -1,6 +1,9 @@
 let allDevices = [];
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await requireCurrentUser();
+  if (!user) return;
+
   const deviceForm = document.getElementById("deviceForm");
   const deviceMessage = document.getElementById("deviceMessage");
   const selectedRoom = document.getElementById("selectedRoom");
@@ -8,8 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const room_id = localStorage.getItem("room_id");
   const room_name = localStorage.getItem("room_name");
-  const roleId = localStorage.getItem("role_id");
-  window.canChangeDeviceState = roleId === "1" || roleId === "3";
+  window.canChangeDeviceState = hasRole(user, ["admin", "technician"]);
 
   if (!room_id) {
     setMessage(deviceMessage, "No room selected.", "error");
@@ -29,8 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = {
       room_id,
-      userId: localStorage.getItem("user_id") || "",
-      roleId: localStorage.getItem("role_id") || "",
       device_type: deviceForm.device_type.value,
       brand_model: deviceForm.brand_model.value,
       serial_no: deviceForm.serial_no.value,
@@ -64,14 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadDevices() {
   const room_id = localStorage.getItem("room_id");
-  const userId = localStorage.getItem("user_id") || "";
-  const roleId = localStorage.getItem("role_id") || "";
   const deviceFilter = document.getElementById("deviceFilter");
 
   try {
-    const response = await fetch(
-      `/devices/${room_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
-    );
+    const response = await fetch(`/devices/${room_id}`);
     allDevices = await response.json();
     renderDevices(allDevices, deviceFilter.value);
   } catch (err) {
@@ -111,16 +107,10 @@ function renderDevices(devices, filterText = "") {
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", async () => {
-      const userId = localStorage.getItem("user_id") || "";
-      const roleId = localStorage.getItem("role_id") || "";
-
       try {
-        const response = await fetch(
-          `/devices/${device.device_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
-          {
+        const response = await fetch(`/devices/${device.device_id}`, {
           method: "DELETE",
-          },
-        );
+        });
 
         const result = await response.json();
 
@@ -163,11 +153,7 @@ function renderDevices(devices, filterText = "") {
       }
 
       try {
-        const userId = localStorage.getItem("user_id") || "";
-        const roleId = localStorage.getItem("role_id") || "";
-        const response = await fetch(
-          `/devices/${device.device_id}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
-          {
+        const response = await fetch(`/devices/${device.device_id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -177,8 +163,7 @@ function renderDevices(devices, filterText = "") {
             brand_model: device.brand_model,
             status: normalizedStatus,
           }),
-          },
-        );
+        });
 
         const result = await response.json();
 

@@ -1,21 +1,8 @@
 const db = require("../db");
 const { sendDbError } = require("../utils/http");
 
-function requireAdmin(req, res) {
-  if (String(req.query.roleId || "") !== "1") {
-    res.status(403).json({ error: "Admin access required." });
-    return false;
-  }
-
-  return true;
-}
-
 exports.getAllUsers = async (req, res) => {
   try {
-    if (!requireAdmin(req, res)) {
-      return;
-    }
-
     const result = await db.query(
       `
       SELECT u.user_id, u.full_name, u.email, u.role_id, r.role_name, u.created_at
@@ -34,10 +21,6 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getAllHomes = async (req, res) => {
   try {
-    if (!requireAdmin(req, res)) {
-      return;
-    }
-
     const result = await db.query(
       `
       SELECT h.home_id, h.home_name, h.address_text, h.created_at,
@@ -57,10 +40,6 @@ exports.getAllHomes = async (req, res) => {
 
 exports.getAllDevices = async (req, res) => {
   try {
-    if (!requireAdmin(req, res)) {
-      return;
-    }
-
     const result = await db.query(
       `
       SELECT d.device_id, d.device_type, d.brand_model, d.serial_no, d.status,
@@ -81,10 +60,6 @@ exports.getAllDevices = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    if (!requireAdmin(req, res)) {
-      return;
-    }
-
     const userId = req.params.id;
 
     const result = await db.query(
@@ -112,10 +87,6 @@ exports.deleteUser = async (req, res) => {
 
 exports.deleteHome = async (req, res) => {
   try {
-    if (!requireAdmin(req, res)) {
-      return;
-    }
-
     const homeId = req.params.id;
 
     const result = await db.query(
@@ -143,10 +114,6 @@ exports.deleteHome = async (req, res) => {
 
 exports.deleteDevice = async (req, res) => {
   try {
-    if (!requireAdmin(req, res)) {
-      return;
-    }
-
     const deviceId = req.params.id;
 
     const result = await db.query(

@@ -1,6 +1,12 @@
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { normalizeText, requireFields, sendDbError } = require("../utils/http");
+const {
+  createToken,
+  setSessionCookie,
+  clearSessionCookie,
+} = require("../utils/sessionToken");
+const { normalizeUserRole } = require("../utils/roles");
 
 exports.login = async (req, res) => {
   const email = normalizeText(req.body.email);
@@ -16,9 +22,15 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const result = await db.query('SELECT * FROM "User" WHERE email = $1', [
-      email,
-    ]);
+    const result = await db.query(
+      `
+      SELECT u.*, r.role_name
+      FROM "User" u
+      JOIN Role r ON u.role_id = r.role_id
+      WHERE u.email = $1
+      `,
+      [email],
+    );
 
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "Wrong credentials" });
@@ -32,19 +44,34 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: "Wrong credentials" });
     }
 
+    const safeUser = normalizeUserRole({
+      user_id: user.user_id,
+      full_name: user.full_name,
+      email: user.email,
+      role_id: user.role_id,
+      role_name: user.role_name,
+    });
+    const token = createToken(safeUser);
+
+    setSessionCookie(res, token);
+
     res.json({
       message: "Login success",
-      user: {
-        user_id: user.user_id,
-        full_name: user.full_name,
-        email: user.email,
-        role_id: user.role_id,
-      },
+      user: safeUser,
     });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Server error" });
   }
+};
+
+exports.me = async (req, res) => {
+  res.json({ user: req.user });
+};
+
+exports.logout = async (req, res) => {
+  clearSessionCookie(res);
+  res.json({ message: "Logged out" });
 };
 
 exports.register = async (req, res) => {

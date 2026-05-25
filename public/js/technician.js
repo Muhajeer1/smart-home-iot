@@ -1,14 +1,14 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const fullName = localStorage.getItem("full_name");
-  const roleId = localStorage.getItem("role_id");
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await requireCurrentUser();
+  if (!user) return;
 
-  if (roleId !== "3") {
+  if (!hasRole(user, ["technician"])) {
     alert("Access denied");
     window.location.href = "/";
     return;
   }
 
-  document.getElementById("techUser").textContent = `Logged in as: ${fullName}`;
+  document.getElementById("techUser").textContent = `Logged in as: ${user.full_name}`;
 
   loadDevicesForTechnician();
   initReadingSimulator(
@@ -21,14 +21,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadDevicesForTechnician() {
   try {
-    const roleId = localStorage.getItem("role_id") || "";
-    const response = await fetch(
-      `/technician/devices?roleId=${encodeURIComponent(roleId)}`,
-    );
+    const response = await fetch("/technician/devices");
     const devices = await response.json();
-
     const deviceList = document.getElementById("deviceList");
+
     deviceList.innerHTML = "";
+
+    if (!response.ok || !Array.isArray(devices)) {
+      document.getElementById("techDeviceCount").textContent = 0;
+      document.getElementById("techOfflineCount").textContent = 0;
+      document.getElementById("techMaintenanceCount").textContent = 0;
+      alert(devices.error || "Failed to load technician devices");
+      return;
+    }
+
     document.getElementById("techDeviceCount").textContent = devices.length;
     document.getElementById("techOfflineCount").textContent = devices.filter(
       (device) => device.status === "offline",
@@ -94,13 +100,12 @@ async function loadDevicesForTechnician() {
 
 async function updateDeviceStatus(deviceId, newStatus) {
   try {
-    const roleId = localStorage.getItem("role_id") || "";
     const response = await fetch(`/technician/devices/${deviceId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status: newStatus, roleId }),
+      body: JSON.stringify({ status: newStatus }),
     });
 
     const result = await response.json();

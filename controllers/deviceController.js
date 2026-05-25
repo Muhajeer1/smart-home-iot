@@ -127,8 +127,8 @@ async function canAccessDevice(deviceId, userId, roleId) {
 exports.getDevicesByRoom = async (req, res) => {
   try {
     const roomId = req.params.roomId;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const params = [roomId];
     const ownerSql =
       roleId === "1" || roleId === "3" ? "" : "AND h.owner_user_id = $2";
@@ -162,8 +162,8 @@ exports.createDefaultSensorsForDevice = async (req, res) => {
 
   try {
     const deviceId = req.params.id;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
 
     if (!(await canAccessDevice(deviceId, userId, roleId))) {
       return res.status(403).json({ error: "You can only manage your own devices." });
@@ -211,8 +211,8 @@ exports.createDevice = async (req, res) => {
 
   try {
     const room_id = req.body.room_id;
-    const userId = req.body.userId;
-    const roleId = String(req.body.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const device_type = normalizeKey(req.body.device_type);
     const brand_model = normalizeText(req.body.brand_model);
     const serial_no = normalizeText(req.body.serial_no);
@@ -297,8 +297,8 @@ exports.createDevice = async (req, res) => {
 exports.updateDevice = async (req, res) => {
   try {
     const deviceId = req.params.id;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const device_type = normalizeKey(req.body.device_type);
     const brand_model = normalizeText(req.body.brand_model);
     const status = normalizeKey(req.body.status);
@@ -405,8 +405,8 @@ exports.updateDevice = async (req, res) => {
 exports.deleteDevice = async (req, res) => {
   try {
     const deviceId = req.params.id;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
 
     if (!(await canAccessDevice(deviceId, userId, roleId))) {
       return res.status(403).json({ error: "You can only delete your own devices." });

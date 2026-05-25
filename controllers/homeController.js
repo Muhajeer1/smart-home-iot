@@ -4,7 +4,7 @@ const { normalizeText, requireFields, sendDbError } = require("../utils/http");
 
 exports.getHomesByUser = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.user.user_id;
 
     const result = await db.query(
       `
@@ -24,9 +24,9 @@ exports.getHomesByUser = async (req, res) => {
 
 exports.createHome = async (req, res) => {
   try {
-    const owner_user_id = req.body.owner_user_id;
-    const userId = req.body.userId;
-    const roleId = String(req.body.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
+    const owner_user_id = roleId === "1" && req.body.owner_user_id ? req.body.owner_user_id : userId;
     const home_name = normalizeText(req.body.home_name);
     const address_text = normalizeText(req.body.address_text);
 
@@ -75,8 +75,8 @@ exports.createHome = async (req, res) => {
 exports.deleteHome = async (req, res) => {
   try {
     const homeId = req.params.id;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const params = [homeId];
     const ownerSql =
       roleId === "1" || roleId === "3" ? "" : "AND owner_user_id = $2";

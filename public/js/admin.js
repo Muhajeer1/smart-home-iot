@@ -1,15 +1,15 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const fullName = localStorage.getItem("full_name");
-  const roleId = localStorage.getItem("role_id");
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await requireCurrentUser();
+  if (!user) return;
 
-  if (roleId !== "1") {
+  if (!hasRole(user, ["admin"])) {
     alert("Access denied");
     window.location.href = "/";
     return;
   }
 
   document.getElementById("adminUser").textContent =
-    `Logged in as: ${fullName}`;
+    `Logged in as: ${user.full_name}`;
 
   loadUsers();
   loadHomes();
@@ -21,15 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
     "adminBulkGenerateBtn",
   );
 
-  document.getElementById("logoutLink").addEventListener("click", () => {
-    localStorage.clear();
+  document.getElementById("logoutLink").addEventListener("click", async (event) => {
+    event.preventDefault();
+    await logout();
   });
 });
 
 async function loadUsers() {
   try {
-    const roleId = localStorage.getItem("role_id") || "";
-    const response = await fetch(`/admin/users?roleId=${encodeURIComponent(roleId)}`);
+    const response = await fetch("/admin/users");
     const users = await response.json();
 
     const userList = document.getElementById("userList");
@@ -56,13 +56,9 @@ async function loadUsers() {
         const confirmed = confirm(`Delete user ${user.full_name}?`);
         if (!confirmed) return;
 
-        const roleId = localStorage.getItem("role_id") || "";
-        const response = await fetch(
-          `/admin/users/${user.user_id}?roleId=${encodeURIComponent(roleId)}`,
-          {
+        const response = await fetch(`/admin/users/${user.user_id}`, {
           method: "DELETE",
-          },
-        );
+        });
 
         const result = await response.json();
 
@@ -87,8 +83,7 @@ async function loadUsers() {
 
 async function loadHomes() {
   try {
-    const roleId = localStorage.getItem("role_id") || "";
-    const response = await fetch(`/admin/homes?roleId=${encodeURIComponent(roleId)}`);
+    const response = await fetch("/admin/homes");
     const homes = await response.json();
 
     const homeList = document.getElementById("homeList");
@@ -115,13 +110,9 @@ async function loadHomes() {
         const confirmed = confirm(`Delete home ${home.home_name}?`);
         if (!confirmed) return;
 
-        const roleId = localStorage.getItem("role_id") || "";
-        const response = await fetch(
-          `/admin/homes/${home.home_id}?roleId=${encodeURIComponent(roleId)}`,
-          {
+        const response = await fetch(`/admin/homes/${home.home_id}`, {
           method: "DELETE",
-          },
-        );
+        });
 
         const result = await response.json();
 
@@ -146,8 +137,7 @@ async function loadHomes() {
 
 async function loadDevices() {
   try {
-    const roleId = localStorage.getItem("role_id") || "";
-    const response = await fetch(`/admin/devices?roleId=${encodeURIComponent(roleId)}`);
+    const response = await fetch("/admin/devices");
     const devices = await response.json();
 
     const deviceList = document.getElementById("deviceList");
@@ -181,13 +171,9 @@ async function loadDevices() {
         const confirmed = confirm(`Delete device ${formatLabel(device.device_type)}?`);
         if (!confirmed) return;
 
-        const roleId = localStorage.getItem("role_id") || "";
-        const response = await fetch(
-          `/admin/devices/${device.device_id}?roleId=${encodeURIComponent(roleId)}`,
-          {
+        const response = await fetch(`/admin/devices/${device.device_id}`, {
           method: "DELETE",
-          },
-        );
+        });
 
         const result = await response.json();
 

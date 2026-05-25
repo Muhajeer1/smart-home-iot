@@ -10,8 +10,8 @@ const {
 exports.getRoomsByHome = async (req, res) => {
   try {
     const homeId = req.params.homeId;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const params = [homeId];
     const ownerSql =
       roleId === "1" || roleId === "3" ? "" : "AND h.owner_user_id = $2";
@@ -42,8 +42,8 @@ exports.getRoomsByHome = async (req, res) => {
 exports.createRoom = async (req, res) => {
   try {
     const home_id = req.body.home_id;
-    const userId = req.body.userId;
-    const roleId = String(req.body.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const room_name = normalizeText(req.body.room_name);
     const floor_no = req.body.floor_no;
 
@@ -108,8 +108,8 @@ exports.createRoom = async (req, res) => {
 exports.updateRoom = async (req, res) => {
   try {
     const roomId = req.params.id;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const room_name = normalizeText(req.body.room_name);
     const floor_no = req.body.floor_no;
 

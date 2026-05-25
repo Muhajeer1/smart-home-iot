@@ -1,15 +1,18 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const fullName = localStorage.getItem("full_name");
-  const roleId = localStorage.getItem("role_id");
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await requireCurrentUser();
+  if (!user) return;
+
+  const fullName = user.full_name;
+  const roleName = getRoleName(user);
   const alertFilter = document.getElementById("alertFilter");
   const backLink = document.getElementById("alertsBackLink");
 
   document.getElementById("alertsUser").textContent = `Logged in as: ${fullName}`;
 
-  if (roleId === "1" && backLink) {
+  if (roleName === "admin" && backLink) {
     backLink.href = "/admin";
     backLink.textContent = "Back to Admin";
-  } else if (roleId === "3" && backLink) {
+  } else if (roleName === "technician" && backLink) {
     backLink.href = "/technician";
     backLink.textContent = "Back to Technician";
   }
@@ -42,8 +45,6 @@ function updateAlertSummary(alerts) {
 }
 
 async function loadAlerts() {
-  const userId = localStorage.getItem("user_id");
-  const roleId = localStorage.getItem("role_id");
   const status = document.getElementById("alertFilter").value;
   const alertMessage = document.getElementById("alertMessage");
   const alertList = document.getElementById("alertList");
@@ -52,13 +53,18 @@ async function loadAlerts() {
   setMessage(alertMessage, "", null);
 
   try {
-    const response = await fetch(
-      `/alerts?userId=${encodeURIComponent(userId || "")}&roleId=${encodeURIComponent(roleId || "")}&status=${encodeURIComponent(status)}`,
-    );
+    const response = await fetch(`/alerts?status=${encodeURIComponent(status)}`);
     const alerts = await response.json();
 
     if (!response.ok) {
+      updateAlertSummary([]);
       setMessage(alertMessage, alerts.error || "Failed to load alerts.", "error");
+      return;
+    }
+
+    if (!Array.isArray(alerts)) {
+      updateAlertSummary([]);
+      setMessage(alertMessage, "Failed to load alerts.", "error");
       return;
     }
 
@@ -131,20 +137,14 @@ async function loadAlerts() {
 
 async function updateAlertResolution(alertId, isResolved) {
   const alertMessage = document.getElementById("alertMessage");
-  const userId = localStorage.getItem("user_id") || "";
-  const roleId = localStorage.getItem("role_id") || "";
-
   try {
-    const response = await fetch(
-      `/alerts/${alertId}/resolve?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
-      {
+    const response = await fetch(`/alerts/${alertId}/resolve`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ is_resolved: isResolved }),
-      },
-    );
+    });
     const result = await response.json();
 
     if (response.ok) {
@@ -161,8 +161,6 @@ async function updateAlertResolution(alertId, isResolved) {
 
 async function deleteAlert(alertId) {
   const alertMessage = document.getElementById("alertMessage");
-  const userId = localStorage.getItem("user_id") || "";
-  const roleId = localStorage.getItem("role_id") || "";
   const confirmed = confirm("Delete this alert?");
 
   if (!confirmed) {
@@ -170,12 +168,9 @@ async function deleteAlert(alertId) {
   }
 
   try {
-    const response = await fetch(
-      `/alerts/${alertId}?userId=${encodeURIComponent(userId)}&roleId=${encodeURIComponent(roleId)}`,
-      {
+    const response = await fetch(`/alerts/${alertId}`, {
       method: "DELETE",
-      },
-    );
+    });
     const result = await response.json();
 
     if (response.ok) {

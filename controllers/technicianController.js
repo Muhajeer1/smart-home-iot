@@ -5,17 +5,8 @@ const { normalizeKey, sendDbError, validateEnum } = require("../utils/http");
 
 const DEVICE_STATUSES = ["active", "inactive", "offline", "maintenance"];
 
-function hasTechnicianAccess(req) {
-  const roleId = String(req.query.roleId || req.body.roleId || "");
-  return roleId === "1" || roleId === "3";
-}
-
 exports.getAllDevices = async (req, res) => {
   try {
-    if (!hasTechnicianAccess(req)) {
-      return res.status(403).json({ error: "Access denied." });
-    }
-
     const result = await db.query(
       `
       SELECT d.device_id,
@@ -43,10 +34,6 @@ exports.getAllDevices = async (req, res) => {
 
 exports.getAllSensors = async (req, res) => {
   try {
-    if (!hasTechnicianAccess(req)) {
-      return res.status(403).json({ error: "Access denied." });
-    }
-
     const result = await db.query(
       `
       SELECT s.sensor_id, s.sensor_type, s.unit, s.normal_min, s.normal_max,
@@ -70,10 +57,6 @@ exports.getAllSensors = async (req, res) => {
 
 exports.updateDeviceStatus = async (req, res) => {
   try {
-    if (!hasTechnicianAccess(req)) {
-      return res.status(403).json({ error: "Access denied." });
-    }
-
     const deviceId = req.params.id;
     const status = normalizeKey(req.body.status);
 

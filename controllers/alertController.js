@@ -4,8 +4,8 @@ const { normalizeKey, sendDbError, validateEnum } = require("../utils/http");
 const ALERT_FILTERS = ["active", "resolved", "all"];
 
 function buildAlertAccess(req, ownerParamIndex) {
-  const userId = req.query.userId;
-  const roleId = String(req.query.roleId || "");
+  const userId = req.user.user_id;
+  const roleId = String(req.user.role_id || "");
 
   if (roleId === "1" || roleId === "3") {
     return { sql: "", params: [] };
@@ -19,8 +19,8 @@ function buildAlertAccess(req, ownerParamIndex) {
 
 exports.getAlerts = async (req, res) => {
   try {
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const filter = normalizeKey(req.query.status || "active");
 
     if (!validateEnum(res, filter, ALERT_FILTERS, "alert filter")) {

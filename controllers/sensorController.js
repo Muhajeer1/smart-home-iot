@@ -22,8 +22,8 @@ const SENSOR_TYPES = [
 exports.getSensorsByDevice = async (req, res) => {
   try {
     const deviceId = req.params.deviceId;
-    const userId = req.query.userId;
-    const roleId = String(req.query.roleId || "");
+    const userId = req.user.user_id;
+    const roleId = String(req.user.role_id || "");
     const params = [deviceId];
     const ownerSql =
       roleId === "1" || roleId === "3" ? "" : "AND h.owner_user_id = $2";
