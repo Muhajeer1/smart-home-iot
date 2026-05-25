@@ -42,24 +42,24 @@ body {
     ),
     var(--bg);
   color: var(--ink);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 body.has-app-dock {
-  padding-left: 236px;
+  padding-left: 222px;
 }
 
 body.has-app-dock.dock-collapsed {
-  padding-left: 92px;
+  padding-left: 82px;
 }
 
 .page {
-  max-width: 1180px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 22px 20px 46px;
+  padding: 18px 18px 40px;
 }
 
 .app-dock {
@@ -68,8 +68,8 @@ body.has-app-dock.dock-collapsed {
   z-index: 20;
   display: flex;
   flex-direction: column;
-  width: 206px;
-  padding: 14px;
+  width: 196px;
+  padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
@@ -87,8 +87,8 @@ body.has-app-dock.dock-collapsed {
 
 .app-dock.is-collapsed:hover,
 .app-dock.is-collapsed:focus-within {
-  width: 206px;
-  padding: 14px;
+  width: 196px;
+  padding: 12px;
 }
 
 .dock-brand {
@@ -260,7 +260,7 @@ body.has-app-dock.dock-collapsed {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
   margin: 0 0 22px;
   padding: 12px 14px;
   background: rgba(255, 255, 255, 0.92);
@@ -340,10 +340,10 @@ body.has-app-dock .app-topbar {
   overflow: hidden;
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.55fr);
-  gap: 18px;
+  gap: 16px;
   align-items: center;
-  margin-bottom: 22px;
-  padding: 26px;
+  margin-bottom: 16px;
+  padding: 22px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background:
@@ -416,7 +416,7 @@ body.has-app-dock .app-topbar {
 h1 {
   margin: 0;
   color: var(--ink);
-  font-size: 2.05rem;
+  font-size: 1.85rem;
   font-weight: 800;
   line-height: 1.12;
   letter-spacing: 0;
@@ -425,7 +425,7 @@ h1 {
 h2 {
   margin: 0 0 14px;
   color: var(--ink);
-  font-size: 1.18rem;
+  font-size: 1.1rem;
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: 0;
@@ -440,7 +440,7 @@ h2 {
 .layout-grid {
   display: grid;
   grid-template-columns: minmax(280px, 0.75fr) minmax(0, 1.25fr);
-  gap: 18px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -448,8 +448,8 @@ h2 {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
   box-shadow: var(--shadow);
   transition:
     border-color 0.2s ease,
@@ -476,7 +476,7 @@ h2 {
 .report-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 
 .report-card {
@@ -488,7 +488,7 @@ h2 {
 }
 
 .analytics-scope-card {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .analytics-scope-card .report-header {
@@ -590,8 +590,8 @@ input,
 select,
 textarea {
   width: 100%;
-  min-height: 44px;
-  padding: 11px 12px;
+  min-height: 40px;
+  padding: 9px 11px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background-color: #fbfdfd;
@@ -612,8 +612,8 @@ textarea:focus {
 
 button {
   width: fit-content;
-  min-height: 40px;
-  padding: 9px 16px;
+  min-height: 38px;
+  padding: 8px 14px;
   border: 1px solid var(--accent);
   border-radius: 8px;
   background: var(--accent);
@@ -688,21 +688,21 @@ button:hover {
 .event-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
   margin-bottom: 22px;
 }
 
 .control-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
 .control-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 
 .control-card {
@@ -718,7 +718,7 @@ button:hover {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
-  padding: 14px;
+  padding: 12px;
   background: #ffffff;
 }
 
@@ -942,7 +942,7 @@ li {
   background: #fbfdfd;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 14px;
+  padding: 12px;
   margin-bottom: 12px;
   line-height: 1.6;
 }
@@ -1073,7 +1073,7 @@ li:hover {
 
 .summary-box {
   min-height: 118px;
-  padding: 20px;
+  padding: 16px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background:
@@ -1112,13 +1112,13 @@ li:hover {
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 
 .metric-tile {
   display: block;
   min-height: 132px;
-  padding: 20px;
+  padding: 16px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fbfdfd;
@@ -1152,7 +1152,7 @@ li:hover {
 .system-flow {
   display: grid;
   grid-template-columns: minmax(240px, 0.75fr) minmax(0, 1.25fr);
-  gap: 18px;
+  gap: 16px;
   align-items: center;
   padding: 22px;
   border: 1px solid var(--line);
@@ -1303,7 +1303,7 @@ tr:hover {
 .auth-grid {
   display: grid;
   grid-template-columns: minmax(260px, 0.9fr) minmax(280px, 1.1fr);
-  gap: 18px;
+  gap: 16px;
   align-items: stretch;
 }
 
@@ -1311,7 +1311,7 @@ tr:hover {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
   min-height: 390px;
   padding: 26px;
   border: 1px solid var(--line);
@@ -1340,7 +1340,7 @@ tr:hover {
 
 .auth-forms {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 @media (max-width: 900px) {
@@ -1416,7 +1416,7 @@ tr:hover {
     align-items: flex-start;
     flex-direction: column;
     margin: 0 0 18px;
-    padding: 14px;
+    padding: 12px;
   }
 
   .page-hero,
