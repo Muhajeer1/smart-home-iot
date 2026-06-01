@@ -51,7 +51,7 @@ exports.login = async (req, res) => {
       role_id: user.role_id,
       role_name: user.role_name,
     });
-    const token = createToken(safeUser);
+    const token = createToken(safeUser.user_id);
 
     setSessionCookie(res, token);
 

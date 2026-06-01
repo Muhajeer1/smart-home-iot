@@ -13,7 +13,7 @@ The database is the core of the project. Homes, rooms, devices, sensors, reading
 ## Key Features
 
 - Role-based login flow for user, technician, and admin views
-- Cookie-based session authentication with a signed token and protected backend routes
+- Cookie-based session authentication with `jsonwebtoken`, an `httpOnly` cookie, and protected backend routes
 - CRUD operations for homes, rooms, devices, sensors, and readings
 - Smart home hierarchy: Home -> Room -> Device -> Sensor -> SensorReading
 - Automatic default sensor creation based on selected device type
@@ -31,7 +31,7 @@ The database is the core of the project. Homes, rooms, devices, sensors, reading
 - Database: PostgreSQL
 - Frontend: HTML, CSS, vanilla JavaScript
 - Password hashing: bcrypt
-- Session auth: signed HTTP cookie token with `JWT_SECRET`
+- Session auth: `jsonwebtoken` JWT stored in an `httpOnly` cookie and signed with `JWT_SECRET`
 - Hosting: Vercel
 - Cloud database: Neon PostgreSQL
 
@@ -99,7 +99,7 @@ DB_PORT=5432
 JWT_SECRET=change_this_to_a_long_random_secret
 ```
 
-`JWT_SECRET` is used to sign the session token stored in the browser as an HTTP cookie. Use a long random value locally and set a separate secret in production. Do not commit your real `.env` file.
+`JWT_SECRET` is required to sign and verify session JWTs. Generate a long random value locally, set a separate secret in production, and never commit your real `.env` file. The app intentionally stops during startup when this variable is missing.
 
 4. Import the database schema and optional demo data:
 
@@ -141,7 +141,7 @@ When `DATABASE_URL` exists, the app uses it automatically. Otherwise it falls ba
 
 ## Authentication & Access Control
 
-After login, the server signs a session token and stores it in an HTTP cookie. Protected API routes read that cookie, verify the token, and attach the current user to the request. Frontend pages call `/me` to get the current user instead of trusting role data from `localStorage`.
+After login, the server creates a JWT with `jsonwebtoken` and stores it in an `httpOnly` cookie. The token contains only the user ID in its `sub` claim. Protected API routes verify the signature, expiration, issuer, and audience, then load the current user and role from PostgreSQL before attaching them to the request. This keeps the database as the source of truth when an account is deleted or a role changes. Frontend pages call `/me` instead of trusting role data from `localStorage`.
 
 Access levels:
 
