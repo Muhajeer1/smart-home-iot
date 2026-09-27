@@ -1,168 +1,140 @@
-# Smart Home IoT Database Management System
+# Smart Home IoT
 
-Live Demo: https://smart-home-iot-liard.vercel.app/
+A smart home management application built with **React, TypeScript, Express and PostgreSQL**. Manage connected spaces, review sensor history and alerts, and use dedicated administrator and technician workspaces.
 
-A full-stack smart home IoT management system built with Node.js, Express, PostgreSQL, and vanilla JavaScript. The project demonstrates how a relational database can power a real application with role-based access, CRUD workflows, device telemetry, alerts, event history, and analytics reports.
+[Live application](https://smart-home-iot-liard.vercel.app/)
 
-## Overview
+## Features
 
-This application models a smart home IoT environment where users can manage homes, rooms, devices, sensors, and sensor readings. Technicians can inspect devices, change device states, and simulate sensor readings. Admins can manage system-level data and review global analytics.
+- **Homes and rooms:** create and edit your spaces; search collections and navigate directly to each home, room and device.
+- **Devices and sensors:** add devices with default sensors, inspect configuration, delete devices with confirmation, and edit model/status as an administrator or technician.
+- **Reading history:** trend chart, summaries, date/quality/range filters, sorting, pagination and CSV export. Filters remain in the URL after refresh.
+- **Alerts:** active and resolved views, severity/search filters, resolve/reopen actions and confirmed deletion.
+- **Activity:** searchable event history with home and event-type filters.
+- **Analytics:** six reports covering device/room counts, latest readings, out-of-range readings, recent alerts and average readings by sensor type.
+- **Administration:** searchable user, home and device directories with confirmed deletion.
+- **Technician workspace:** system-wide device monitoring, four operating statuses, and individual/bulk reading simulation.
+- **Responsive interface:** desktop and mobile layouts, keyboard-accessible dialogs, explicit loading/error/empty states and retry controls.
 
-The database is the core of the project. Homes, rooms, devices, sensors, readings, events, alerts, users, and roles are connected through foreign keys. The application uses those relationships to provide meaningful workflows and reports instead of storing isolated records.
+Supported actions follow the current API. Room deletion, manual sensor management, profile editing and role changes are tracked in the [API follow-up notes](docs/api-follow-up.md), rather than presented as available features.
 
-## Key Features
+## Stack and architecture
 
-- Role-based login flow for user, technician, and admin views
-- Cookie-based session authentication with `jsonwebtoken`, an `httpOnly` cookie, and protected backend routes
-- CRUD operations for homes, rooms, devices, sensors, and readings
-- Smart home hierarchy: Home -> Room -> Device -> Sensor -> SensorReading
-- Automatic default sensor creation based on selected device type
-- Sensor reading simulation for testing IoT behavior without physical hardware
-- Alerts for abnormal readings, offline devices, and maintenance state
-- Resolve/reopen flow for active and resolved alerts
-- Event history for important system actions
-- Analytics reports built with SQL joins, grouping, aggregation, nested queries, and date filtering
-- Clean URL routing for a more realistic web app experience
-- Deployment-ready database configuration for local PostgreSQL or cloud PostgreSQL
+| Layer | Technology |
+| --- | --- |
+| Frontend | React, TypeScript, React Router, Vite, CSS, Lucide icons |
+| Backend | Node.js, Express, parameterized PostgreSQL queries |
+| Database | PostgreSQL; existing cloud deployment uses Neon |
+| Authentication | bcrypt passwords, signed JWT in an HttpOnly cookie |
+| Testing | Playwright browser scenarios and Node.js integration tests |
+| Hosting | Vercel static frontend and Node.js API function |
 
-## Tech Stack
+The domain hierarchy is **Home → Room → Device → Sensor → Reading**. Events and alerts reference related records. Analytics use SQL joins, aggregates, nested queries and date conditions.
 
-- Backend: Node.js, Express
-- Database: PostgreSQL
-- Frontend: HTML, CSS, vanilla JavaScript
-- Password hashing: bcrypt
-- Session auth: `jsonwebtoken` JWT stored in an `httpOnly` cookie and signed with `JWT_SECRET`
-- Hosting: Vercel
-- Cloud database: Neon PostgreSQL
+The frontend calls `/backend/*` on its own origin. Locally, Vite proxies those requests to Express; on Vercel, the API entrypoint removes the prefix and delegates to the same Express application. Database credentials remain server-side.
 
-## Database Concepts Demonstrated
+## Roles
 
-- Primary keys and foreign keys
-- One-to-many relationships
-- `ON DELETE CASCADE`, `ON DELETE SET NULL`, and `ON DELETE RESTRICT`
-- Parameterized SQL queries
-- Input validation before database writes
-- CRUD operations
-- Joins across multiple related tables
-- `GROUP BY`, `COUNT`, `AVG`, `MIN`, `MAX`
-- Date filtering for recent alerts
-- Nested query for latest reading per sensor
+| Role | Workspace |
+| --- | --- |
+| User | Owned homes and their devices, readings, events, alerts and analytics |
+| Technician | Personal homes plus system devices, status changes, simulation and global reports |
+| Administrator | Personal homes plus user/home/device administration and technician tools |
 
-## Analytics Reports
+The server verifies the session and loads the current role from PostgreSQL on protected requests. The React navigation reflects that role. Existing authorization inconsistencies and further server safeguards are documented in the [API backlog](docs/api-follow-up.md).
 
-The analytics page demonstrates advanced SQL queries on top of the stored IoT data. Reports are scoped by selected home, so users can inspect analytics for a specific smart home instead of only seeing global totals.
+## Local development
 
-- Devices per home
-- Latest reading per sensor with home, room, and device context
-- Abnormal reading summary by sensor
-- Alert summary by type for the last 30 days
-- Average reading value by sensor type
-- Number of rooms per home
+Use Node.js 24 and npm. Install both dependency sets from the repository root:
 
-## Demo Access
-
-The deployed version uses a demo PostgreSQL database. Demo accounts use:
-
-```txt
-Password: 123456
+```sh
+npm ci
+npm ci --prefix client
 ```
 
-Recommended demo accounts:
+Copy `.env.example` to `.env` and configure **either** the local `DB_*` settings or `DATABASE_URL`, plus a long random `JWT_SECRET`. Use an existing database with the project schema, or restore your own schema/data backup into an empty local database. Schema and dump files are not currently included in this repository.
 
-```txt
-Admin: admin@smarthome.local
-User: aylin@smarthome.local
-User: mert@smarthome.local
-Technician: technician@smarthome.local
-```
+Start Express in one terminal:
 
-If a demo account is unavailable, a new regular user can be created from the registration form. Admin and technician roles are intended to be assigned directly in the database.
-
-## Local Setup
-
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-2. Create a PostgreSQL database.
-
-3. Copy `.env.example` to `.env` and fill in your local database values:
-
-```txt
-DB_HOST=localhost
-DB_USER=postgres
-DB_PASSWORD=your_postgres_password
-DB_NAME=smart_home_iot
-DB_PORT=5432
-JWT_SECRET=change_this_to_a_long_random_secret
-```
-
-`JWT_SECRET` is required to sign and verify session JWTs. Generate a long random value locally, set a separate secret in production, and never commit your real `.env` file. The app intentionally stops during startup when this variable is missing.
-
-4. Import the database schema and optional demo data:
-
-```bash
-psql -U postgres -d smart_home_iot -f database.sql
-psql -U postgres -d smart_home_iot -f final_dump.sql
-```
-
-5. Start the app:
-
-```bash
-npm start
-```
-
-6. Open the app:
-
-```txt
-http://localhost:3000
-```
-
-For development with automatic restarts:
-
-```bash
+```sh
 npm run dev
 ```
 
-## Cloud Deployment Notes
+Start React in a second terminal:
 
-The app supports both local PostgreSQL variables and a cloud database connection string.
-
-For cloud deployment, set this environment variable in the hosting platform:
-
-```txt
-DATABASE_URL=postgresql://username:password@host/database?sslmode=require
-JWT_SECRET=your_long_random_production_secret
+```sh
+npm run dev --prefix client
 ```
 
-When `DATABASE_URL` exists, the app uses it automatically. Otherwise it falls back to the local `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, and `DB_PORT` values. `JWT_SECRET` is required for consistent session signing across deployments.
+Open **http://127.0.0.1:5173**. Express runs on port 3000. The original interface remains in `public/` and is still served at port 3000 for reference; the new interface is on port 5173.
 
-## Authentication & Access Control
+To point Vite at another local backend, copy `client/.env.example` to `client/.env.local` and change `BACKEND_URL`. Do not put database credentials or session secrets in frontend environment variables.
 
-After login, the server creates a JWT with `jsonwebtoken` and stores it in an `httpOnly` cookie. The token contains only the user ID in its `sub` claim. Protected API routes verify the signature, expiration, issuer, and audience, then load the current user and role from PostgreSQL before attaching them to the request. This keeps the database as the source of truth when an account is deleted or a role changes. Frontend pages call `/me` instead of trusting role data from `localStorage`.
+## Build and verification
 
-Access levels:
+From the repository root:
 
-- User: manages only their own homes, rooms, devices, sensors, readings, alerts, events, and home-scoped analytics.
-- Technician: can view system devices, change device status, simulate readings, and review analytics/events/alerts.
-- Admin: can manage users, homes, devices, and review system-wide data.
+```sh
+npm run build
+npm test
+npm test --prefix client
+npm run format:check --prefix client
+```
 
-## Project Structure
+- `build` type-checks the frontend and writes its production assets to `client/dist`.
+- Root tests cover home-update validation and the deployment adapter, including prefixed API routing, login, production cookie attributes, session restoration and role denial. They use an isolated database stub. Run the build first for the static-output check.
+- Client tests cover 53 browser scenarios with intercepted API calls; they do not modify PostgreSQL records.
+- Playwright uses installed Google Chrome on macOS. On other systems, run `npx playwright install chromium` from `client/`, or set `PLAYWRIGHT_CHROMIUM_EXECUTABLE`.
 
-```txt
+To inspect a production frontend build locally, keep Express running and use `npm run preview --prefix client`, then open http://127.0.0.1:4173.
+
+## Vercel deployment
+
+Keep the existing Vercel project connected to this repository, with **Root Directory set to the repository root**. The checked-in `vercel.json` defines:
+
+| Setting | Value |
+| --- | --- |
+| Framework | Other (`null` in configuration) |
+| Install command | `npm ci && npm ci --prefix client --include=dev` |
+| Build command | `npm run build` |
+| Output directory | `client/dist` |
+| API entrypoint | `api/index.js` |
+
+`/backend/*` is routed to Express; application page URLs fall back to the built React `index.html`. Static assets are served directly, so nested React routes can be refreshed without an Express page route.
+
+Retain the existing **DATABASE_URL** and **JWT_SECRET** in Vercel Environment Variables. For a functional preview, those variables must also be available in the Preview environment. Use a separate test database there if preview changes should be isolated. No schema migration or database reset is required for this frontend deployment.
+
+Pushing to the configured production branch publishes through the existing project and preserves its production domain. Other branches create preview deployments when Git integration is enabled. See the [deployment guide](docs/vercel-deployment.md) for verification and rollback.
+
+## Demo accounts
+
+The demo database includes these accounts, subject to its current data:
+
+| Role | Email |
+| --- | --- |
+| Administrator | `admin@smarthome.local` |
+| User | `aylin@smarthome.local` |
+| User | `mert@smarthome.local` |
+| Technician | `technician@smarthome.local` |
+
+Demo password: `123456`. Registration creates a regular user. Treat demo accounts as demonstration access, not a production account policy.
+
+## Project structure
+
+```text
+client/        React application, styles, browser tests and build configuration
+api/           Vercel adapter for the existing Express application
 controllers/   Request handlers and database operations
 routes/        Express route definitions
-middleware/    Authentication and role access middleware
-services/      Reusable event and alert logic
-utils/         Validation, role helpers, session token helpers, and database error helpers
-public/        HTML, CSS, and frontend JavaScript
-api/           Vercel serverless entry point
+middleware/    Session verification and role checks
+services/      Event and alert operations
+utils/         Validation, role, JWT and error helpers
+tests/         Backend and deployment integration tests
+docs/          Deployment guide, migration record and API follow-up notes
+public/        Original frontend, retained for reference
+server.js      Express application and local startup
 db.js          PostgreSQL connection pool
-server.js      Express app setup and routes
+vercel.json    Build and deployment routing
 ```
 
-## Notes
-
-This project was originally developed as a database management systems course project and later improved for portfolio presentation. It focuses on demonstrating relational database design, backend integration, and practical full-stack workflows.
+This project began as a database management systems course project and now includes a complete React client for its existing application workflows. See the [client guide](client/README.md) for frontend details and the [migration record](docs/react-migration.md) for implementation history.

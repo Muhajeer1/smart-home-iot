@@ -2,7 +2,7 @@
 
 ## Boundaries
 
-The React client is developed in `client/`. Express, controllers, services, auth middleware, PostgreSQL, and the root Vercel configuration remain unchanged at the user's request. Existing uncommitted home-edit work belongs to the baseline and must be preserved.
+The React client is developed in `client/`. Express business handlers, services, auth middleware and PostgreSQL remain unchanged during the frontend rewrite. The subsequent rollout adds the root build/routing configuration and a thin Vercel API adapter. Existing uncommitted home-edit work belongs to the baseline and must be preserved.
 
 This is a staged migration, not a production cutover. Every stage should end with working API-connected flows, error/empty/loading states, responsive layouts, and focused acceptance tests. Server access-control findings from the initial review remain a separate backlog; client routing cannot repair or replace server authorization.
 
@@ -31,7 +31,7 @@ Shared rules: 44px primary controls, visible focus, semantic labels, native moda
 | Admin workspace | No | Admin only | Implemented |
 | Technician workspace | No | Admin/technician | Implemented |
 
-All original functional sections now have React destinations, including the specialist role workspaces. The original public UI remains intact for rollback. Local startup/deployment cutover is still pending; root Express startup continues serving the original UI.
+All original functional sections now have React destinations, including the specialist role workspaces. The original public UI remains intact for rollback. Vercel rollout configuration is now prepared; root local Express startup continues serving the original UI. See vercel-deployment.md for the deployment procedure.
 
 ## First-slice API contracts
 
@@ -147,3 +147,8 @@ GET /technician/devices; PUT /technician/devices/:id `{status}`.
 ### Remaining rollout work
 
 React feature migration is complete for the existing UI actions. Root startup and deployed frontend have not been switched. Next rollout work: same-origin /backend routing, static asset/page fallback, production cookies and direct-link reload verification, build orchestration and rollback. Unsupported new actions are tracked separately in api-follow-up.md and are not part of frontend parity. Real destructive operations were verified with API mocks; database cascade policy still needs review in the API pass.
+
+
+## Vercel rollout configuration
+
+The root README now describes the React application and actual setup files. vercel.json builds client/dist and routes /backend requests to the existing API function, whose adapter removes that prefix before Express handles the request. No controllers, services, schema or database connection settings change in this rollout. Root npm test includes isolated HTTP integration checks for the adapter and production cookie behavior. See [deployment guide](vercel-deployment.md) for current verification and rollback instructions; prior stage notes above describe historical state.

@@ -19,7 +19,7 @@ npm run dev
 
 Open **http://127.0.0.1:5173**. Express stays on port 3000. Use existing database accounts. The original interface remains available on port 3000.
 
-The client has its own package and lockfile. It does not change root dependencies, Express, database configuration, or Vercel routing.
+The client has its own package and lockfile. Express business handlers and database configuration remain unchanged; Vercel integration lives in the root configuration and API adapter.
 
 ## API and cookies
 
@@ -36,7 +36,7 @@ npm test
 
 Browser tests intercept API requests and do not write to PostgreSQL. On macOS they use installed Google Chrome. Otherwise install Chromium using `npx playwright install chromium`, or set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to a local browser path.
 
-`npm run preview` serves the build locally on port 4173 with the same API proxy. The current root Vercel deployment still serves the original application. Production deployment of the React client is a later migration step and requires a same-origin proxy for `/backend/*` plus a page fallback; Vite's development proxy is not included in static build output.
+`npm run preview` serves the build locally on port 4173 with the same API proxy. The root `vercel.json` builds this client and serves it together with the Express API. It routes `/backend/*` through `api/index.js` and application pages to the React entrypoint. See the [deployment guide](../docs/vercel-deployment.md). Vite's development proxy is not included in static build output.
 
 ## Structure
 
@@ -76,4 +76,4 @@ See [API follow-up notes](../docs/api-follow-up.md) for the action matrix and pr
 
 All new tables paginate loaded API lists on the client; server-side pagination is a follow-up. Global views retain the existing server scope for each role. Missing units and ancestry IDs are not inferred from names. Admin self-deletion and last-admin guards are client safeguards only, pending backend enforcement.
 
-The suite now contains 53 browser scenarios. Live reads and pages were also checked with all three demo roles without deleting records or changing device/alert state. Root startup and production deployment still use the original frontend; switching them is the next rollout step.
+The suite now contains 53 browser scenarios. Live reads and pages were also checked with all three demo roles without deleting records or changing device/alert state. Local root startup still serves the original frontend on port 3000. The Vercel configuration publishes the React build with the existing Express API.
