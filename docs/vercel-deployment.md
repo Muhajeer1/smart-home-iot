@@ -14,7 +14,7 @@ Request flow:
 - `/backend/api/homes` → API adapter → existing Express `/api/homes` handler.
 - `/backend/analytics/devices-per-home?homeId=6` → same query on the existing analytics handler.
 
-The adapter preserves HTTP methods, bodies and cookies and marks API responses private/no-store. Auth uses the existing HttpOnly, Secure, SameSite=Lax cookie in production. Local `npm run dev` still starts the original Express server; run the Vite client separately.
+The adapter preserves HTTP methods, bodies and cookies and marks API responses private/no-store. Auth uses the existing HttpOnly, Secure, SameSite=Lax cookie in production. Local `npm run dev` starts Express with page redirects to Vite; run the Vite client separately. Local `npm start` serves the React build and `/backend/*` on port 3000 without Vite. The old public/ interface has been removed.
 
 ## Environment variables
 
@@ -37,4 +37,4 @@ Protected previews require a Vercel-authenticated browser or explicitly configur
 
 The last pre-React production Git revision was `9584e61`. Vercel can roll back to the previous successful production deployment. For a persistent source rollback, revert the rollout commits in Git and push the revert; do not force-reset shared history. Application rollback does not undo database writes.
 
-The original frontend remains in `public/` as a reference, but reverting only the React assets is insufficient: routing and the API adapter must stay consistent with the selected frontend.
+The original frontend is available only in Git history and previous deployments. To roll back to it, restore a complete earlier revision: routing and the API adapter must stay consistent with the selected frontend.

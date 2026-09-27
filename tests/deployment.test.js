@@ -87,3 +87,24 @@ test('Vercel configuration keeps the root backend and serves built SPA pages', (
   assert.match(html,/id="root"/);
   assert.match(html,/\/assets\/.*\.js/);
 });
+
+
+test('direct local Express serves React and prefixed API independently', async t => {
+  const local = http.createServer(require('../server'));
+  await new Promise(resolve => local.listen(0,'127.0.0.1',resolve));
+  t.after(async () => {local.closeAllConnections();await new Promise(resolve => local.close(resolve));});
+  const localBase = `http://127.0.0.1:${local.address().port}`;
+  const page = await fetch(localBase+'/homes/6/rooms/4');
+  assert.equal(page.status,200);assert.match(await page.text(),/id="root"/);
+  for(const endpoint of ['/me','/backend/me']) {
+    const response=await fetch(localBase+endpoint);assert.equal(response.status,401);
+    assert.match(response.headers.get('content-type'),/application\/json/);
+  }
+  const login=await fetch(localBase+'/backend/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:user.email,password:'local-fixture-password'})});
+  assert.equal(login.status,200);
+  const headers={cookie:login.headers.get('set-cookie').split(';')[0]};
+  const homes=await fetch(localBase+'/backend/api/homes',{headers});
+  assert.equal(homes.status,200);assert.equal((await homes.json())[0].home_name,'Test home');
+  const unknown=await fetch(localBase+'/backend/not-a-real-endpoint');
+  assert.equal(unknown.status,404);assert.match(unknown.headers.get('content-type'),/application\/json/);
+});

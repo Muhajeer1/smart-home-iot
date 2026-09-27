@@ -1,6 +1,6 @@
 const express = require("express");
-const path = require("path");
 const bodyParser = require("body-parser");
+const { attachFrontend } = require("./utils/frontend");
 
 const authRoutes = require("./routes/authRoutes");
 const homeRoutes = require("./routes/homeRoutes");
@@ -16,67 +16,29 @@ const alertRoutes = require("./routes/alertRoutes");
 
 const app = express();
 
-const pageRoutes = {
-  "/dashboard": "dashboard.html",
-  "/admin": "admin.html",
-  "/technician": "technician.html",
-  "/homes": "homes.html",
-  "/rooms": "rooms.html",
-  "/devices": "devices.html",
-  "/sensors": "sensors.html",
-  "/readings": "readings.html",
-  "/analytics": "analytics.html",
-  "/activity": "events.html",
-  "/alert-center": "alerts.html",
-};
-
-const legacyPageRedirects = {
-  "/index.html": "/",
-  "/dashboard.html": "/dashboard",
-  "/admin.html": "/admin",
-  "/technician.html": "/technician",
-  "/homes.html": "/homes",
-  "/rooms.html": "/rooms",
-  "/devices.html": "/devices",
-  "/sensors.html": "/sensors",
-  "/readings.html": "/readings",
-  "/analytics.html": "/analytics",
-  "/events.html": "/activity",
-  "/alerts.html": "/alert-center",
-};
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-Object.entries(legacyPageRedirects).forEach(([legacyRoute, cleanRoute]) => {
-  app.get(legacyRoute, (req, res) => {
-    res.redirect(301, cleanRoute);
-  });
+const apiRoutes = express.Router();
+apiRoutes.use(authRoutes);
+apiRoutes.use(homeRoutes);
+apiRoutes.use(roomRoutes);
+apiRoutes.use(deviceRoutes);
+apiRoutes.use(technicianRoutes);
+apiRoutes.use(sensorRoutes);
+apiRoutes.use(readingRoutes);
+apiRoutes.use(adminRoutes);
+apiRoutes.use(analyticsRoutes);
+apiRoutes.use(eventRoutes);
+apiRoutes.use(alertRoutes);
+
+// The built React client uses the same /backend namespace as Vercel.
+app.use("/backend", apiRoutes, (req, res) => {
+  res.status(404).json({ error: "API endpoint not found." });
 });
-
-app.use(express.static("public"));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-Object.entries(pageRoutes).forEach(([route, fileName]) => {
-  app.get(route, (req, res) => {
-    res.sendFile(path.join(__dirname, "public", fileName));
-  });
-});
-
-app.use(authRoutes);
-app.use(homeRoutes);
-app.use(roomRoutes);
-app.use(deviceRoutes);
-app.use(technicianRoutes);
-app.use(sensorRoutes);
-app.use(readingRoutes);
-app.use(adminRoutes);
-app.use(analyticsRoutes);
-app.use(eventRoutes);
-app.use(alertRoutes);
+// Keep existing direct API paths for Vite, Vercel and API clients.
+app.use(apiRoutes);
+attachFrontend(app, { development: process.argv.includes("--frontend-dev") });
 
 const PORT = process.env.PORT || 3000;
 

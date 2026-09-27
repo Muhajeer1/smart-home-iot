@@ -7,7 +7,7 @@
     "test": "node --test tests/*.test.js",
     "build": "npm run build --prefix client",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js --frontend-dev"
   },
   "keywords": [],
   "author": "",

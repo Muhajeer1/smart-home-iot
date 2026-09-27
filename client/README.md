@@ -17,7 +17,7 @@ npm ci
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173**. Express stays on port 3000. Use existing database accounts. The original interface remains available on port 3000.
+Open **http://127.0.0.1:5173**. Express stays on port 3000. Use existing database accounts. Opening a page on port 3000 during development redirects to Vite.
 
 The client has its own package and lockfile. Express business handlers and database configuration remain unchanged; Vercel integration lives in the root configuration and API adapter.
 
@@ -76,4 +76,4 @@ See [API follow-up notes](../docs/api-follow-up.md) for the action matrix and pr
 
 All new tables paginate loaded API lists on the client; server-side pagination is a follow-up. Global views retain the existing server scope for each role. Missing units and ancestry IDs are not inferred from names. Admin self-deletion and last-admin guards are client safeguards only, pending backend enforcement.
 
-The suite now contains 53 browser scenarios. Live reads and pages were also checked with all three demo roles without deleting records or changing device/alert state. Local root startup still serves the original frontend on port 3000. The Vercel configuration publishes the React build with the existing Express API.
+The suite now contains 53 browser scenarios. Live reads and pages were also checked with all three demo roles without deleting records or changing device/alert state. Root `npm start` serves the built React client and its API on port 3000; run the root `npm run build` first. Root `npm run dev` redirects page requests to Vite on 5173. The Vercel configuration publishes the React build with the existing Express API.

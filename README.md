@@ -66,7 +66,7 @@ Start React in a second terminal:
 npm run dev --prefix client
 ```
 
-Open **http://127.0.0.1:5173**. Express runs on port 3000. The original interface remains in `public/` and is still served at port 3000 for reference; the new interface is on port 5173.
+Open **http://127.0.0.1:5173**. Express runs on port 3000; in development its page URLs redirect to Vite on 5173. React is the only frontend; the old HTML/CSS/JavaScript interface has been removed.
 
 To point Vite at another local backend, copy `client/.env.example` to `client/.env.local` and change `BACKEND_URL`. Do not put database credentials or session secrets in frontend environment variables.
 
@@ -86,7 +86,7 @@ npm run format:check --prefix client
 - Client tests cover 53 browser scenarios with intercepted API calls; they do not modify PostgreSQL records.
 - Playwright uses installed Google Chrome on macOS. On other systems, run `npx playwright install chromium` from `client/`, or set `PLAYWRIGHT_CHROMIUM_EXECUTABLE`.
 
-To inspect a production frontend build locally, keep Express running and use `npm run preview --prefix client`, then open http://127.0.0.1:4173.
+To run the built application on a single port, stop the development Express process, run `npm run build` and then `npm start`. Open **http://127.0.0.1:3000**: Express serves React and `/backend/*` without Vite. Rebuild after frontend edits. Alternatively, Vite preview (`npm run preview --prefix client`) serves the build on port 4173 while Express is running.
 
 ## Vercel deployment
 
@@ -131,7 +131,6 @@ services/      Event and alert operations
 utils/         Validation, role, JWT and error helpers
 tests/         Backend and deployment integration tests
 docs/          Deployment guide, migration record and API follow-up notes
-public/        Original frontend, retained for reference
 server.js      Express application and local startup
 db.js          PostgreSQL connection pool
 vercel.json    Build and deployment routing
