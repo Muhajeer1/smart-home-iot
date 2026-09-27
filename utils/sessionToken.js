@@ -10,7 +10,9 @@ function getSecret() {
   const secret = String(process.env.JWT_SECRET || "").trim();
 
   if (!secret) {
-    throw new Error("JWT_SECRET is required. Add it to your .env file or deployment environment variables.");
+    throw new Error(
+      "JWT_SECRET is required. Add it to your .env file or deployment environment variables.",
+    );
   }
 
   return secret;

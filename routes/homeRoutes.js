@@ -5,6 +5,7 @@ const { requireAuth } = require("../middleware/authMiddleware");
 
 router.get("/api/homes", requireAuth, homeController.getHomesByUser);
 router.post("/homes", requireAuth, homeController.createHome);
+router.put("/homes/:id", requireAuth, homeController.updateHome);
 router.delete("/homes/:id", requireAuth, homeController.deleteHome);
 
 module.exports = router;

@@ -72,6 +72,47 @@ exports.createHome = async (req, res) => {
   }
 };
 
+exports.updateHome = async (req, res) => {
+  const homeId = req.params.id;
+  if (!/^[1-9]\d*$/.test(homeId) || !Number.isSafeInteger(Number(homeId)) || Number(homeId) > 2147483647) {
+    return res.status(400).json({ error: "Invalid home ID." });
+  }
+
+  const fields = [
+    ["home_name", "Home name", 60],
+    ["address_text", "Address", 200],
+  ];
+  const values = {};
+  for (const [key, label, max] of fields) {
+    const value = req.body?.[key];
+    if (value === undefined || value === null || (typeof value === "string" && !value.trim())) {
+      return res.status(400).json({ error: `${label} is required.` });
+    }
+    if (typeof value !== "string") {
+      return res.status(400).json({ error: `${label} must be a string.` });
+    }
+    values[key] = value.trim();
+    if (Array.from(values[key]).length > max) {
+      return res.status(400).json({ error: `${label} must be at most ${max} characters.` });
+    }
+  }
+
+  try {
+    const result = await db.query(
+      `UPDATE Home SET home_name = $1, address_text = $2
+       WHERE home_id = $3 AND owner_user_id = $4 RETURNING *`,
+      [values.home_name, values.address_text, homeId, req.user.user_id],
+    );
+    if (!result.rows.length) {
+      return res.status(404).json({ error: "Home not found." });
+    }
+    res.json({ message: "Home updated successfully", home: result.rows[0] });
+  } catch (error) {
+    console.error("UPDATE HOME ERROR:", error.message);
+    sendDbError(res, error);
+  }
+};
+
 exports.deleteHome = async (req, res) => {
   try {
     const homeId = req.params.id;

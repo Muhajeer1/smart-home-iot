@@ -42,6 +42,18 @@
           <h2>My Homes</h2>
           <ul id="homeList"></ul>
         </div>
+        <div class="card" id="editHomePanel" hidden>
+          <h2>Edit Home</h2>
+          <form id="editHomeForm">
+            <label for="editHomeName">Home name (1–60 characters)</label>
+            <input id="editHomeName" name="home_name" required />
+            <label for="editHomeAddress">Address (1–200 characters)</label>
+            <input id="editHomeAddress" name="address_text" required />
+            <button id="saveHomeButton" type="submit">Save Changes</button>
+            <button id="cancelHomeButton" type="button">Cancel</button>
+          </form>
+          <p id="editHomeMessage" class="message" role="status"></p>
+        </div>
       </div>
     </div>
 
